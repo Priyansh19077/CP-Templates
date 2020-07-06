@@ -1,4 +1,6 @@
 /* Priyansh Agarwal*/
+//suffix array implementation
+// O(n(logn^2))
 #include<bits/stdc++.h>
 #include<algorithm>
 #include<unordered_map>
@@ -23,7 +25,11 @@ using namespace std;
 #define set_bits __builtin_popcount
 typedef long long ll;
 typedef unsigned long long ull;
-typedef long double lld;
+// auto t1 = clock();
+// auto t2 = clock();
+// #ifndef ONLINE_JUDGE
+// cout << "Time: " << (t2 - t1) * (1.0) / CLOCKS_PER_SEC;
+// #endif
 /*---------------------------------------------------------------------------------------------------------------------------*/
 ll gcd(ll a, ll b) {if (b > a) {return gcd(b, a);} if (b == 0) {return a;} return gcd(b, a % b);}
 ll expo(ll a, ll b, ll mod)
@@ -44,5 +50,49 @@ int main()
 	freopen("Output.txt", "w", stdout);
 	freopen("Error.txt", "w", stderr);
 #endif
+	string s;
+	cin >> s;
+	s += '$';
+	int n = s.length();
+	vector<int> p(n), c(n);
+	// k=0
+	{
+		vector<pair<char, int>> a;
+		for (int i = 0; i < n; i++)
+			a.pb({s[i], i});
+		sort(a.begin(), a.end());
+		for (int i = 0; i < n; i++)
+			p[i] = a[i].ss;
+		c[p[0]] = 0;
+		int ans = 0;
+		for (int i = 1; i < n; i++)
+		{
+			if (a[i].ff != a[i - 1].ff)
+				ans++;
+			c[p[i]] = ans;
+		}
+	}
+	int k = 0;
+	while ((1 << k) < n)
+	{
+		vector < pair<pair<int, int>, int>> a(n);
+		for (int i = 0; i < n; i++)
+			a[i] = {{c[i], c[(i + (1 << k)) % n]}, i};
+		sort(a.begin(), a.end());
+		for (int i = 0; i < n; i++)
+			p[i] = a[i].ss;
+		c[p[0]] = 0;
+		int ans = 0;
+		for (int i = 0; i < n; i++)
+		{
+			if (a[i].ff != a[i - 1].ff)
+				ans++;
+			c[p[i]] = ans;
+		}
+		k++;
+	}
+	for (int i = 0; i < n; i++)
+		cout << p[i] << " " << s.substr(p[i], n - p[i]) << endl;
+	cout << endl;
 	return 0;
 }
