@@ -1,6 +1,4 @@
 /* Priyansh Agarwal*/
-//suffix array implementation
-// O(n(logn^2))
 #include<bits/stdc++.h>
 #include<algorithm>
 #include<unordered_map>
@@ -25,11 +23,7 @@ using namespace std;
 #define set_bits __builtin_popcount
 typedef long long ll;
 typedef unsigned long long ull;
-// auto t1 = clock();
-// auto t2 = clock();
-// #ifndef ONLINE_JUDGE
-// cout << "Time: " << (t2 - t1) * (1.0) / CLOCKS_PER_SEC;
-// #endif
+typedef long double lld;
 /*---------------------------------------------------------------------------------------------------------------------------*/
 ll gcd(ll a, ll b) {if (b > a) {return gcd(b, a);} if (b == 0) {return a;} return gcd(b, a % b);}
 ll expo(ll a, ll b, ll mod)
@@ -42,6 +36,24 @@ bool revsort(ll a, ll b) {return a > b;}
 void swap(int &x, int &y) {int temp = x; x = y; y = temp;}
 ll combination(ll n, ll r, ll m, ll* fact) {ll val1 = fact[n]; ll val2 = mminvprime(fact[r], m); ll val3 = mminvprime(fact[n - r], m); return ((val1 * val2) % m * val3) % m;}
 /*--------------------------------------------------------------------------------------------------------------------------*/
+void counting_sort(vector<int> &p, vector<int> &c, int n)
+{
+	vector<int> cnt(n);
+	for (auto x : c)
+		cnt[x]++;
+	vector<int> p_new(n);
+	vector<int> pos(n);
+	pos[0] = 0;
+	for (int i = 1; i < n; i++)
+		pos[i] = pos[i - 1] + cnt[i - 1];
+	for (auto x : p)
+	{
+		int i = c[x];
+		p_new[pos[i]] = x;
+		pos[i]++;
+	}
+	p = p_new;
+}
 int main()
 {
 	fastio();
@@ -55,44 +67,44 @@ int main()
 	s += '$';
 	int n = s.length();
 	vector<int> p(n), c(n);
-	// k=0
 	{
-		vector<pair<char, int>> a;
+		vector<pair<char, int>> a(n);
 		for (int i = 0; i < n; i++)
-			a.pb({s[i], i});
+			a[i] = {s[i], i};
 		sort(a.begin(), a.end());
 		for (int i = 0; i < n; i++)
 			p[i] = a[i].ss;
 		c[p[0]] = 0;
-		int ans = 0;
 		for (int i = 1; i < n; i++)
 		{
-			if (a[i].ff != a[i - 1].ff)
-				ans++;
-			c[p[i]] = ans;
+			if (a[i].ff == a[i - 1].ff)
+				c[p[i]] = c[p[i - 1]];
+			else
+				c[p[i]] = c[p[i - 1]] + 1;
 		}
 	}
 	int k = 0;
 	while ((1 << k) < n)
 	{
-		vector < pair<pair<int, int>, int>> a(n);
 		for (int i = 0; i < n; i++)
-			a[i] = {{c[i], c[(i + (1 << k)) % n]}, i};
-		sort(a.begin(), a.end());
-		for (int i = 0; i < n; i++)
-			p[i] = a[i].ss;
-		c[p[0]] = 0;
-		int ans = 0;
-		for (int i = 0; i < n; i++)
+			p[i] = (p[i] - (1 << k) + n) % n;
+		counting_sort(p, c, n);
+		vector<int> c_new(n);
+		c_new[p[0]] = 0;
+		for (int i = 1; i < n; i++)
 		{
-			if (a[i].ff != a[i - 1].ff)
-				ans++;
-			c[p[i]] = ans;
+			pair<int, int> prev = {c[p[i - 1]], c[(p[i - 1] + (1 << k)) % n]};
+			pair<int, int> now = {c[p[i]], c[(p[i] + (1 << k)) % n]};
+			if (now == prev)
+				c_new[p[i]] = c_new[p[i - 1]];
+			else
+				c_new[p[i]] = c_new[p[i - 1]] + 1;
 		}
 		k++;
+		c = c_new;
 	}
 	for (int i = 0; i < n; i++)
-		cout << p[i] << " " << s.substr(p[i], n - p[i]) << endl;
+		cout << p[i] << " ";
 	cout << endl;
 	return 0;
 }
