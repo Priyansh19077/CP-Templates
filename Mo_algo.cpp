@@ -42,7 +42,7 @@ ll combination(ll n, ll r, ll m, ll* fact) {ll val1 = fact[n]; ll val2 = mminvpr
 void google(int t) {cout << "Case #" << t << ": ";}
 vector<int> sieve(int n) {int*arr = new int[n + 1](); vector<int> vect; for (int i = 2; i <= n; i++)if (arr[i] == 0) {vect.push_back(i); for (int j = 2 * i; j <= n; j += i)arr[j] = 1;} return vect;}
 /*--------------------------------------------------------------------------------------------------------------------------*/
-const int block_size = 500;
+const int block_size = 450;
 bool compare(pair<pair<int, int>, int> p1, pair<pair<int, int>, int> p2)
 {
 	int b1 = p1.ff.ff / block_size;
@@ -63,13 +63,25 @@ int main()
 	int n, q;
 	cin >> n >> q;
 	// block_size = int(sqrt(n + 0.0) + 1);
-	int arr[n];
+	int *arr = new int[n];
+	int *freq = new int[n + 1]();
+	int number = 1;
+	map<int, int> coordinate_compression;
 	for (int i = 0; i < n; i++)
+	{
 		cin >> arr[i];
+		if (coordinate_compression.find(arr[i]) == coordinate_compression.end())
+		{
+			coordinate_compression[arr[i]] = number;
+			arr[i] = number;
+			number++;
+		}
+		else
+			arr[i] = coordinate_compression[arr[i]];
+	}
 	int start = 0;
 	int end = -1;
 	vector<pair<pair<int, int>, int>> ans(q);
-	map<int, int> m1;
 	for (int i = 0; i < q; i ++)
 	{
 		int a, b;
@@ -87,8 +99,8 @@ int main()
 		while (start < left)
 		{
 			int x = arr[start];
-			m1[x]--;
-			if (m1[x] == 0)
+			freq[x]--;
+			if (freq[x] == 0)
 				count--;
 			start++;
 		}
@@ -96,23 +108,23 @@ int main()
 		{
 			start--;
 			int x = arr[start];
-			m1[x]++;
-			if (m1[x] == 1)
+			freq[x]++;
+			if (freq[x] == 1)
 				count++;
 		}
 		while (end < right)
 		{
 			end++;
 			int x = arr[end];
-			m1[x]++;
-			if (m1[x] == 1)
+			freq[x]++;
+			if (freq[x] == 1)
 				count++;
 		}
 		while (end > right)
 		{
 			int x = arr[end];
-			m1[x]--;
-			if (m1[x] == 0)
+			freq[x]--;
+			if (freq[x] == 0)
 				count--;
 			end--;
 		}
