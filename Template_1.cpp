@@ -41,6 +41,10 @@ void swap(int &x, int &y) {int temp = x; x = y; y = temp;}
 ll combination(ll n, ll r, ll m, ll* fact) {ll val1 = fact[n]; ll val2 = mminvprime(fact[r], m); ll val3 = mminvprime(fact[n - r], m); return ((val1 * val2) % m * val3) % m;}
 void google(int t) {cout << "Case #" << t << ": ";}
 vector<int> sieve(int n) {int*arr = new int[n + 1](); vector<int> vect; for (int i = 2; i <= n; i++)if (arr[i] == 0) {vect.push_back(i); for (int j = 2 * i; j <= n; j += i)arr[j] = 1;} return vect;}
+ll mod_add(ll a, ll b, ll m) {a = ((a % m) + m) % m; b = ((b % m) + m) % m; return (((a + b) % m) + m) % m;}
+ll mod_mul(ll a, ll b, ll m) {a = ((a % m) + m) % m; b = ((b % m) + m) % m; return (((a * b) % m) + m) % m;}
+ll mod_sub(ll a, ll b, ll m) {a = ((a % m) + m) % m; b = ((b % m) + m) % m; return (((a - b) % m) + m) % m;}
+ll mod_div(ll a, ll b, ll m) {a = ((a % m) + m) % m; b = ((b % m) + m) % m; return (mod_mul(a, mminvprime(b, m), m) + m) % m;}  //only for prime m
 /*-------------------------------------------------------------------------------------------------------------------------*/
 void solve()
 {
