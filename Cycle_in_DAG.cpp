@@ -50,7 +50,7 @@ bool dfs(int start, vector<int>*edges, bool *w, bool *g, bool *b)
 				return false;
 		}
 	}
-	w[start] = false;
+	g[start] = false;
 	b[start] = true;
 	return true;
 }
