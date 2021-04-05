@@ -1,6 +1,6 @@
 {
-"cmd": ["g++.exe","-DPriyansh31dec",
- "-std=c++17", "${file}", "-O3",
+"cmd": ["g++.exe",
+ "-std=c++17", "${file}",
   "-o",
    "${file_base_name}.exe",
     "&&" ,
