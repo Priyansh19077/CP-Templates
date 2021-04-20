@@ -1,33 +1,12 @@
 /* Priyansh Agarwal*/
-#include<stdlib.h>
-#include<iostream>
-#include<time.h>
-#include<vector>
-#include<iostream>
-#include<vector>
-#include<string>
-#include<algorithm>
-#include<stack>
-#include<unordered_set>
-#include<cmath>
-#include<numeric>
-#include<iterator>
-#include<set>
-#include<unordered_map>
-#include<map>
-#include<queue>
-#include<cstring>
-#include<stdio.h>
-#include<fstream>
-#include<iomanip>
-#include<functional>
-#include<bitset>
-#include<chrono>
-#include<climits>
-#include<assert.h>
+
+#include<bits/stdc++.h>
+// #include<ext/pb_ds/assoc_container.hpp>
+// #include<ext/pb_ds/tree_policy.hpp>
 
 using namespace std;
 using namespace chrono;
+// using namespace __gnu_pbds;
 
 #define fastio() ios_base::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define MOD 1000000007
@@ -41,9 +20,10 @@ using namespace chrono;
 #define ss second
 #define PI 3.141592653589793238462
 #define set_bits __builtin_popcountll
-#define sz(x) (int)(x.size())
+#define sz(x) ((int)(x).size())
+#define all(x) (x).begin(), (x).end()
 
-#ifndef ONLINE_JUDGE
+#ifdef Priyansh31dec
 #define debug(x) cerr << #x<<" "; _print(x); cerr << endl;
 #else
 #define debug(x);
@@ -52,6 +32,7 @@ using namespace chrono;
 typedef long long ll;
 typedef unsigned long long ull;
 typedef long double lld;
+// typedef tree<pair<int, int>, null_type, less<pair<int, int>>, rb_tree_tag, tree_order_statistics_node_update > pbds; // find_by_order, order_of_key
 
 void _print(ll t) {cerr << t;}
 void _print(int t) {cerr << t;}
@@ -60,7 +41,6 @@ void _print(char t) {cerr << t;}
 void _print(lld t) {cerr << t;}
 void _print(double t) {cerr << t;}
 void _print(ull t) {cerr << t;}
-
 
 template <class T, class V> void _print(pair <T, V> p);
 template <class T> void _print(vector <T> v);
@@ -72,12 +52,7 @@ template <class T> void _print(vector <T> v) {cerr << "[ "; for (T i : v) {_prin
 template <class T> void _print(set <T> v) {cerr << "[ "; for (T i : v) {_print(i); cerr << " ";} cerr << "]";}
 template <class T> void _print(multiset <T> v) {cerr << "[ "; for (T i : v) {_print(i); cerr << " ";} cerr << "]";}
 template <class T, class V> void _print(map <T, V> v) {cerr << "[ "; for (auto i : v) {_print(i); cerr << " ";} cerr << "]";}
-
-//#include<ext/pb_ds/assoc_container.hpp>
-//#include<ext/pb_ds/tree_policy.hpp>
-//using namespace __gnu_pbds;
-//typedef tree<pair<int, int>, null_type, less<pair<int, int>>, rb_tree_tag, tree_order_statistics_node_update > pbds; // find_by_order, order_of_key
-//void _print(pbds v) {cerr << "[ "; for (auto i : v) {_print(i); cerr << " ";} cerr << "]";}
+// void _print(pbds v) {cerr << "[ "; for (auto i : v) {_print(i); cerr << " ";} cerr << "]";}
 
 /*---------------------------------------------------------------------------------------------------------------------------*/
 ll gcd(ll a, ll b) {if (b > a) {return gcd(b, a);} if (b == 0) {return a;} return gcd(b, a % b);}
@@ -100,18 +75,17 @@ ll phin(ll n) {ll number = n; if (n % 2 == 0) {number /= 2; while (n % 2 == 0) n
 void solve() {
 
 }
+
 int main() {
-	fastio();
-#ifndef ONLINE_JUDGE
-	freopen("Input.txt", "r", stdin);
-	freopen("Output.txt", "w", stdout);
+#ifdef Priyansh31dec
 	freopen("Error.txt", "w", stderr);
 #endif
+	fastio();
 	auto start1 = high_resolution_clock::now();
 	solve();
 	auto stop1 = high_resolution_clock::now();
 	auto duration = duration_cast<microseconds>(stop1 - start1);
-#ifndef ONLINE_JUDGE
-	cerr << "Time: " << duration.count() / 1000 << endl;
+#ifdef Priyansh31dec
+	cerr << "Time: " << duration . count() / 1000 << endl;
 #endif
 }

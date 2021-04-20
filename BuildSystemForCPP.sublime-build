@@ -1,0 +1,12 @@
+{
+"cmd": ["g++.exe",
+	"-DPriyansh31dec",
+	"-O2",
+ 	"-std=c++14", "${file}",
+    "-o",
+    "${file_base_name}.exe",
+    "&&",
+    "${file_base_name}.exe<Input.txt>Output.txt"],
+"shell":true,
+"selector":"source.cpp"
+}
