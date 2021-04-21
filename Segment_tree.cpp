@@ -1,3 +1,4 @@
+// Credits to HealthyUG for the inspiration.
 // Segment Tree with Point Updates and Range Queries
 // Supports multiple Segment Trees with just a change in the Node and Update
 // Very few changes required everytime
