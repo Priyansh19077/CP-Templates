@@ -61,7 +61,7 @@ struct BinaryLifting {
 		}
 		return a;
 	}
-	inline int getLog(ll x) {
+	int getLog(ll x) {
 		return precomputedLogs ? logValues[x] : log2(x);
 	}
 };
