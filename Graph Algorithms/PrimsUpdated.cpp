@@ -76,51 +76,43 @@ ll phin(ll n) {ll number = n; if (n % 2 == 0) {number /= 2; while (n % 2 == 0) n
 void precision(int a) {cout << setprecision(a) << fixed;}
 /*--------------------------------------------------------------------------------------------------------------------------*/
 
-int get(int a, vector<int>& component) {
-	return component[a] = (component[a] == a ? a : get(component[a], component));
-}
-void merge(int a, int b, vector<int>& rank, vector<int>& component) {
-	a = get(a, component);
-	b = get(b, component);
-	if (a == b)
-		return;
-	if (rank[a] == rank[b])
-		rank[a]++;
-	if (rank[a] > rank[b])
-		component[b] = a;
-	else
-		component[a] = b;
-}
 
 void solve() {
-
 	int n, m;
 	cin >> n >> m;
-	vector<int> component(n);
-	for (int i = 0; i < n; i++) {
-		component[i] = i;
-	}
-	vector<int> rank(n, 0);
-	vector<pair<ll, pair<int, int>>> edges;
+	vector<pair<int, ll>> *edges = new vector<pair<int, ll>>[n];
 	for (int i = 0; i < m; i++) {
 		int a, b, c;
 		cin >> a >> b >> c;
-		edges.push_back({c, {a, b}});
+		edges[a].pb({b, c});
+		edges[b].pb({a, c});
 	}
-	sort(edges.begin(), edges.end());
-	vector<pair<pair<int, int>, ll>> ans;
-	for (auto i : edges) {
-		if (sz(ans) == n - 1)
-			break;
-		int a = i.ss.ff;
-		int b = i.ss.ss;
-		if (get(a, component) != get(b, component)) {
-			merge(a, b, rank, component);
-			ans.push_back({{min(a, b), max(b, a)}, i.ff});
+	set<pair<ll, int>> pq;
+	vector<ll> dist(n, INF);
+	dist[0] = 0;
+	vector<bool> visited(n);
+	vector<int> parent(n, -1);
+	pq.insert({0, 0});
+	for (int i = 0; i < n; i++) {
+		pair<ll, int> top = *pq.begin();
+		pq.erase(top);
+		int best = top.ss;
+		visited[best] = true;
+		for (auto i : edges[best]) {
+			if ((!visited[i.ff]) && dist[i.ff] > i.ss) {
+				pq.erase({dist[i.ff], i.ff});
+				dist[i.ff] = i.ss;
+				pq.insert({dist[i.ff], i.ff});
+				parent[i.ff] = best;
+			}
 		}
 	}
-	for (auto i : ans) {
-		cout << i.ff.ff << " " << i.ff.ss << " " << i.ss << endl;
+	for (int i = 1; i < n; i++) {
+		if (parent[i] < i) {
+			cout << parent[i] << " " << i << " " << dist[i] << nline;
+		} else {
+			cout << i << " " << parent[i] << " " << dist[i] << nline;
+		}
 	}
 }
 
