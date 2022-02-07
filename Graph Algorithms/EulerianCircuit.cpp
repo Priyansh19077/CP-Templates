@@ -30,7 +30,7 @@ vector<vector<int>> EulerCircuits(int n, vector<int>* edges){
     for(int i = 0; i < n; i++){
         if(sz(newEdges[i])){
             vector<int> path;
-            dfs(0, newEdges, path);
+            dfs(i, newEdges, path);
             circuits.pb(path);
         }
     }
