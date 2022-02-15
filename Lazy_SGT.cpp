@@ -42,19 +42,18 @@ struct LazySGT {
             lazy[index] = 0;
         }
     }
-    void apply(int index, int start, int end, Update u){
+    void apply(int index, int start, int end, Update& u){
         if(start != end){
             lazy[index] = 1;
             updates[index].combine(u, start, end);
         }
         u.apply(tree[index], start, end);
     }
-    void update(int start, int end, int index, int left, int right, Update u) {  // Never Change this
+    void update(int start, int end, int index, int left, int right, Update& u) {  // Never Change this
         if(start > right || end < left)
             return;
         if(start >= left && end <= right){
             apply(index, start, end, u);
-            pushdown(index, start, end);
             return;
         }
         pushdown(index, start, end);
