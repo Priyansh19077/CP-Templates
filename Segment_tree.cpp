@@ -8,10 +8,15 @@ struct SegTree {
 	vector<Node> tree;
 	vector<ll> arr; // type may change
 	int n;
+	int s;
 	SegTree(int a_len, vector<ll> &a) { // change if type updated
 		arr = a;
 		n = a_len;
-		tree.resize(4 * n); fill(all(tree), Node());
+		s = 1;
+		while(s < 2 * n){
+			s = s << 1;
+		}
+		tree.resize(s); fill(all(tree), Node());
 		build(0, n - 1, 1);
 	}
 	void build(int start, int end, int index)  // Never change this
