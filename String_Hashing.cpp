@@ -22,8 +22,27 @@ struct Hashing{
         for(int i = 0; i < sz(hashPrimes); i++) {
             hashValues[i].resize(n);
             for(int j = 0; j < n; j++){
-                hashValues[i][j] = ((s[j] - 'a' + 1) * powersOfBase[i][j]) % hashPrimes[i];
+                hashValues[i][j] = ((s[j] - 'a' + 1LL) * powersOfBase[i][j]) % hashPrimes[i];
                 hashValues[i][j] = (hashValues[i][j] + (j > 0 ? hashValues[i][j - 1] : 0LL)) % hashPrimes[i];
+            }
+        }
+    }
+    void addCharacter(char ch){
+        s += ch;
+        n = sz(s);
+        for(int i = 0; i < sz(hashPrimes); i++){
+            while(sz(powersOfBase[i]) < sz(s)){
+                powersOfBase[i].pb((powersOfBase[i].back() * base) % hashPrimes[i]);   
+            }
+        }
+        for(int i = 0; i < sz(hashPrimes); i++){
+            while(sz(hashValues[i]) < sz(s)){
+                if(sz(hashValues[i]) == 0){
+                    hashValues[i].pb((s[0] - 'a' + 1LL) % hashPrimes[i]);
+                }else{
+                    ll extraHash = hashValues[i].back() + ((s.back() - 'a' + 1LL) * powersOfBase[i][sz(s) - 1]) % hashPrimes[i];
+                    hashValues[i].pb((extraHash + hashPrimes[i]) % hashPrimes[i]);
+                }
             }
         }
     }
