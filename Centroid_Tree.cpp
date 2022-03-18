@@ -40,14 +40,6 @@ int decompose(int root, vector<int>* edges, vector<int>* edgesN, int parent){
     }
     return root;
 }
-void dfs(int root, vector<int>* edges, int parent, char rank, vector<char>& ans){
-    ans[root] = rank;
-    for(auto i : edges[root]){
-        if(i != parent){
-            dfs(i, edges, root, rank + 1, ans);
-        }
-    }
-}
 void solve() {
     int n;
     cin >> n;
