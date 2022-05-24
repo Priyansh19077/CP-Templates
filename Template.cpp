@@ -23,7 +23,7 @@ using namespace __gnu_pbds;
 #define sz(x) ((int)(x).size())
 #define all(x) (x).begin(), (x).end()
 
-#ifdef Priyansh31dec
+#ifndef Priyansh31dec
 #define debug(x) cerr << #x<<" "; _print(x); cerr << endl;
 #else
 #define debug(x);
@@ -76,7 +76,7 @@ void solve(){
 
 }
 int main() {
-#ifdef Priyansh31dec
+#ifndef Priyansh31dec
     freopen("Error.txt", "w", stderr);
 #endif
     fastio();
@@ -84,7 +84,7 @@ int main() {
     solve();
     auto stop1 = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop1 - start1);
-#ifdef Priyansh31dec
+#ifndef Priyansh31dec
     cerr << "Time: " << duration . count() / 1000 << endl;
 #endif
 }
