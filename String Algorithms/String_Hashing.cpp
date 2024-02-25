@@ -6,18 +6,25 @@ struct Hashing{
     const ll base = 31;
     vector<vector<ll>> hashValues;
     vector<vector<ll>> powersOfBase;
+    vector<vector<ll>> inversePowersOfBase;
     Hashing(string a){
         primes = sz(hashPrimes);
         hashValues.resize(primes);
         powersOfBase.resize(primes);
+        inversePowersOfBase.resize(primes);
         s = a;
         n = s.length(); 
         for(int i = 0; i < sz(hashPrimes); i++) {
             powersOfBase[i].resize(n + 1);
+            inversePowersOfBase.resize(n + 1);
             powersOfBase[i][0] = 1;
             for(int j = 1; j <= n; j++){
                 powersOfBase[i][j] = (base * powersOfBase[i][j - 1]) % hashPrimes[i];
             }
+            inversePowersOfBase[i][n] = mminvprime(powersOfBase[i][n], hashPrimes[i]);
+            for(int j = n - 1; j >= 0; j--){
+                inversePowersOfBase[i][j] = mod_mul(inversePowersOfBase[i][j + 1], base, hashPrimes[i]);
+            } 
         }
         for(int i = 0; i < sz(hashPrimes); i++) {
             hashValues[i].resize(n);
@@ -27,31 +34,12 @@ struct Hashing{
             }
         }
     }
-    void addCharacter(char ch){
-        s += ch;
-        n = sz(s);
-        for(int i = 0; i < sz(hashPrimes); i++){
-            while(sz(powersOfBase[i]) < sz(s)){
-                powersOfBase[i].pb((powersOfBase[i].back() * base) % hashPrimes[i]);   
-            }
-        }
-        for(int i = 0; i < sz(hashPrimes); i++){
-            while(sz(hashValues[i]) < sz(s)){
-                if(sz(hashValues[i]) == 0){
-                    hashValues[i].pb((s[0] - 'a' + 1LL) % hashPrimes[i]);
-                }else{
-                    ll extraHash = hashValues[i].back() + ((s.back() - 'a' + 1LL) * powersOfBase[i][sz(s) - 1]) % hashPrimes[i];
-                    hashValues[i].pb((extraHash + hashPrimes[i]) % hashPrimes[i]);
-                }
-            }
-        }
-    }
     vector<ll> substringHash(int l, int r){ // extra O(log) factor
         vector<ll> hash(primes);
         for(int i = 0; i < primes; i++){
             ll val1 = hashValues[i][r];
             ll val2 = l > 0 ? hashValues[i][l - 1] : 0LL;
-            hash[i] = mod_mul(mod_sub(val1, val2, hashPrimes[i]), mminvprime(powersOfBase[i][l], hashPrimes[i]), hashPrimes[i]);
+            hash[i] = mod_mul(mod_sub(val1, val2, hashPrimes[i]), inversePowersOfBase[i][l], hashPrimes[i]);
         }
         return hash;
     }
