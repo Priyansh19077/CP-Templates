@@ -1,63 +1,51 @@
-vector<pair<int, int>> edgeList;
-vector<bool> deleted;
-vector<int> subtree;
-inline int getD(int index, int s){
-    return edgeList[index].ff ^ edgeList[index].ss ^ s;
+// O(N log N) — Centroid Decomposition
+// Edges stored as index pairs in edgeList; edges[u] holds edge indices.
+// Call decompose(root, edges, centroidTree, -1) to build centroid tree.
+// centroidTree[u] = neighbours of u in the centroid decomposition tree.
+// Returns the centroid of the initial component.
+#include <algorithm>
+#include <vector>
+
+std::vector<std::pair<int, int>> edgeList;
+std::vector<bool> deleted;
+std::vector<int> subtree;
+
+static int _getOther(int edgeIdx, int u) {
+    return edgeList[edgeIdx].first ^ edgeList[edgeIdx].second ^ u;
 }
-void computeSubtrees(int root, vector<int>* edges, int parent){
-    subtree[root] = 1;
-    for(auto i : edges[root]){
-        int dest = getD(i, root);
-        if(!deleted[i] && dest != parent){
-            computeSubtrees(dest, edges, root);
-            subtree[root] += subtree[dest];
+
+static void _computeSubtrees(int u, std::vector<int>* edges, int parent) {
+    subtree[u] = 1;
+    for (int i : edges[u]) {
+        int v = _getOther(i, u);
+        if (!deleted[i] && v != parent) {
+            _computeSubtrees(v, edges, u);
+            subtree[u] += subtree[v];
         }
     }
 }
-int findCentroid(int root, vector<int>* edges, int n, int parent){
-    for(auto i : edges[root]){
-        int dest = getD(i, root);
-        if(!deleted[i] && dest != parent && subtree[dest] > n / 2){
-            return findCentroid(dest, edges, n, root);
-        }
+
+static int _findCentroid(int u, std::vector<int>* edges, int treeSize, int parent) {
+    for (int i : edges[u]) {
+        int v = _getOther(i, u);
+        if (!deleted[i] && v != parent && subtree[v] > treeSize / 2)
+            return _findCentroid(v, edges, treeSize, u);
     }
-    return root;
+    return u;
 }
-int decompose(int root, vector<int>* edges, vector<int>* edgesN, int parent){
-    computeSubtrees(root, edges, -1);
+
+int decompose(int root, std::vector<int>* edges, std::vector<int>* centroidTree, int parent) {
+    _computeSubtrees(root, edges, -1);
     int n = subtree[root];
-    root = findCentroid(root, edges, n, -1);
-    if(parent != -1){
-        edgesN[root].pb(parent);
-        edgesN[parent].pb(root);
+    root = _findCentroid(root, edges, n, -1);
+    if (parent != -1) {
+        centroidTree[root].push_back(parent);
+        centroidTree[parent].push_back(root);
     }
-    for(auto i : edges[root]){
-        int dest = getD(i, root);
-        if(deleted[i])
-            continue;
+    for (int i : edges[root]) {
+        if (deleted[i]) continue;
         deleted[i] = true;
-        decompose(dest, edges, edgesN, root);
+        decompose(_getOther(i, root), edges, centroidTree, root);
     }
     return root;
-}
-void solve() {
-    int n;
-    cin >> n;
-    edgeList.clear();
-    deleted.clear();
-    vector<int>* edges= new vector<int>[n];
-    for(int i = 0; i < n - 1; i++){
-        int a, b;
-        cin >> a >> b;
-        a--, b--;
-        edges[a].pb(sz(edgeList));
-        edges[b].pb(sz(edgeList));
-        edgeList.pb({a, b});
-        deleted.pb(0);
-    }
-    vector<int>* edgesN = new vector<int>[n];
-    subtree.resize(n);
-    fill(all(subtree), 0);
-    int root = 0;
-    root = decompose(root, edges, edgesN, -1);
 }

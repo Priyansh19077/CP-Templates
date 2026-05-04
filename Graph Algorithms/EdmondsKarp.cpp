@@ -1,87 +1,76 @@
-struct Edge{
-    int index;
-    int src, dest;
-    ll val;
-    int residualIndex;
+// O(VE²) — Maximum Network Flow via Edmonds-Karp (BFS-based Ford-Fulkerson)
+// Build Flow(edges, n, source, sink), then call maxFlow()
+// edges[u] = list of {v, capacity}
+#include <climits>
+#include <queue>
+#include <vector>
+
+struct Edge {
+    int index, src, dest, residualIndex;
+    long long val;
 };
-struct Flow{
-    int n;
-    int src, dest;
-    int iteration = 0;
-    vector<Edge> edgesT;
-    vector<vector<int>> edges;
-    vector<int> visited;
-    bool solved;
-    ll flow;
-    Flow(vector<pair<int, ll>>* edges1, int n1, int s, int d){
-        n = n1, src = s, dest = d;
-        solved = false;
-        flow = 0, iteration = 1;
-        visited.resize(n);
-        fill(all(visited), 0);
-        edges.resize(n);
-        for(int i = 0; i < n; i++){
-            for(auto j : edges1[i]){
-                Edge e1 = {sz(edgesT), i, j.ff, j.ss, sz(edgesT) + 1};
-                Edge e2 = {sz(edgesT) + 1, j.ff, i, 0, sz(edgesT)};
-                edgesT.pb(e1);
-                edgesT.pb(e2);
-                edges[i].pb(e1.index);
-                edges[j.ff].pb(e2.index);
+
+struct Flow {
+    int n, src, dest, iteration = 0;
+    std::vector<Edge> edgesT;
+    std::vector<std::vector<int>> edges;
+    std::vector<int> visited;
+    bool solved = false;
+    long long flow = 0;
+
+    Flow(std::vector<std::pair<int, long long>>* adj, int n, int s, int d)
+        : n(n), src(s), dest(d), edges(n), visited(n, 0), iteration(1) {
+        for (int u = 0; u < n; u++) {
+            for (auto [v, cap] : adj[u]) {
+                Edge e1 = {(int)edgesT.size(), u, v, (int)edgesT.size() + 1, cap};
+                Edge e2 = {(int)edgesT.size() + 1, v, u, (int)edgesT.size(), 0};
+                edges[u].push_back(e1.index);
+                edges[v].push_back(e2.index);
+                edgesT.push_back(e1);
+                edgesT.push_back(e2);
             }
         }
     }
-    ll bfs(int root){
-        queue<int> qu;
-        qu.push(root);
-        visited[root] = iteration;
-        vector<int> prev(n, -1);
-        while(!qu.empty()){
-            int node = qu.front();
-            qu.pop();
-            if(node == dest)
-                break;
-            for(auto i : edges[node]){
-                Edge e1 = edgesT[i];
-                if(visited[e1.dest] != iteration && e1.val > 0){
-                    visited[e1.dest] = iteration;
-                    prev[e1.dest] = e1.index;
-                    qu.push(e1.dest); 
+
+    long long bfs() {
+        const long long INF = LLONG_MAX / 2;
+        std::queue<int> q;
+        q.push(src);
+        visited[src] = iteration;
+        std::vector<int> prev(n, -1);
+        while (!q.empty()) {
+            int u = q.front(); q.pop();
+            if (u == dest) break;
+            for (int i : edges[u]) {
+                Edge& e = edgesT[i];
+                if (visited[e.dest] != iteration && e.val > 0) {
+                    visited[e.dest] = iteration;
+                    prev[e.dest] = e.index;
+                    q.push(e.dest);
                 }
             }
         }
-        int currNode = dest;
-        if(prev[currNode] == -1)
-            return 0;
-        ll finalValue = INF;
-        while(prev[currNode] != -1){
-            Edge e1 = edgesT[prev[currNode]];
-            finalValue = min(finalValue, e1.val);
-            currNode = e1.src;
+        if (prev[dest] == -1) return 0;
+
+        long long pushed = INF;
+        for (int u = dest; prev[u] != -1; u = edgesT[prev[u]].src)
+            pushed = std::min(pushed, edgesT[prev[u]].val);
+        for (int u = dest; prev[u] != -1; u = edgesT[prev[u]].src) {
+            edgesT[prev[u]].val -= pushed;
+            edgesT[edgesT[prev[u]].residualIndex].val += pushed;
         }
-        currNode = dest;
-        while(prev[currNode] != -1){
-            Edge e1 = edgesT[prev[currNode]];
-            e1.val -= finalValue;
-            edgesT[e1.index] = e1;
-            edgesT[e1.residualIndex].val += finalValue;
-            currNode = e1.src;
-        }
-        return finalValue;
+        return pushed;
     }
-    void EdmondsKarp(){
-        while(true){
-            ll f = bfs(src);
-            if(f == 0)
-                return;
-            flow += f;
-            iteration++;
-        }
-    }
-    ll maxFlow(){
-        if(!solved){
+
+    long long maxFlow() {
+        if (!solved) {
             solved = true;
-            EdmondsKarp();
+            while (true) {
+                long long f = bfs();
+                if (f == 0) break;
+                flow += f;
+                iteration++;
+            }
         }
         return flow;
     }

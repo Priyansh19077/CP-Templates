@@ -1,102 +1,68 @@
+// O(N log N) preprocessing, O(log N) per LCA query — via Binary Lifting
+// Build BinaryLifting first, then LCA. Call lca.getLCA(u, v).
+#include <cmath>
+#include <vector>
+
 struct BinaryLifting {
-	int n;
-	int maxLog;
-	ll maxRequirement;
-	vector<vector<int>> parent;
-	vector<int> logValues;
-	bool precomputedLogs = false;
-	BinaryLifting(int n1, vector<int> *edges, ll requirement, int root) {
-		n = n1;
-		parent.resize(n);
-		maxLog = log2(requirement + 1);
-		maxRequirement = requirement;
-		for (int i = 0; i < n; i++) {
-			parent[i].resize(maxLog + 1);
-			for (int j = 0; j <= maxLog; j++) {
-				parent[i][j] = -1;
-			}
-		}
-		fillParentTable(root, edges);
-		if (maxRequirement <= 1000000LL)
-			precomputeLogs();
-	}
-	void fillParentTable(int root, vector<int> *edges) {
-		vector<bool> visited(n);
-		dfsBinaryLifting(root, edges, visited);
-		int intermediate = -1;
-		for (int i = 1; i <= maxLog; i++) {
-			for (int j = 0; j < n; j++) {
-				intermediate = parent[j][i - 1];
-				if (intermediate != -1) {
-					parent[j][i] = parent[intermediate][i - 1];
-				}
-			}
-		}
-	}
-	void dfsBinaryLifting(int root, vector<int> *edges, vector<bool> &visited) {
-		visited[root] = true;
-		for (auto i : edges[root]) {
-			if (!visited[i]) {
-				parent[i][0] = root;
-				dfsBinaryLifting(i, edges, visited);
-			}
-		}
-	}
-	void precomputeLogs() {
-		precomputedLogs = true;
-		logValues.resize(maxRequirement + 1);
-		logValues[1] = 0;
-		for (int i = 2; i <= maxRequirement; i++) {
-			logValues[i] = logValues[i / 2] + 1;
-		}
-	}
-	int kthParent(int start, int k) {
-		int a = start;
-		while (k > 0) {
-			int x = getLog(k);
-			a = parent[a][x];
-			if (a == -1)
-				return a;
-			k -= (1 << x);
-		}
-		return a;
-	}
-	inline int getLog(ll x) {
-		return precomputedLogs ? logValues[x] : log2(x);
-	}
+    int n, maxLog;
+    std::vector<std::vector<int>> parent;
+
+    BinaryLifting(int n, std::vector<int>* edges, long long maxK, int root)
+        : n(n), maxLog((int)std::log2(maxK + 1) + 1),
+          parent(n, std::vector<int>((int)std::log2(maxK + 1) + 2, -1)) {
+        _dfs(root, -1, edges);
+        for (int j = 1; j <= maxLog; j++)
+            for (int u = 0; u < n; u++)
+                if (parent[u][j - 1] != -1)
+                    parent[u][j] = parent[parent[u][j - 1]][j - 1];
+    }
+
+    void _dfs(int u, int par, std::vector<int>* edges) {
+        parent[u][0] = par;
+        for (int v : edges[u])
+            if (v != par)
+                _dfs(v, u, edges);
+    }
+
+    int kthParent(int u, int k) {
+        for (int j = maxLog; j >= 0; j--) {
+            if (k >= (1 << j)) {
+                u = parent[u][j];
+                k -= (1 << j);
+                if (u == -1) return -1;
+            }
+        }
+        return u;
+    }
 };
 
 struct LCA {
-	int n;
-	vector<int> level;
-	LCA(int n1, vector<int> *edges, int root) {
-		n = n1;
-		level.resize(n);
-		dfsLCA(root, edges, -1);
-	}
-	void dfsLCA(int root, vector<int> *edges, int parent) {
-		for (auto i : edges[root]) {
-			if (i != parent) {
-				level[i] = level[root] + 1;
-				dfsLCA(i, edges, root);
-			}
-		}
-	}
-	int getLCA(int a, int b, BinaryLifting &bl_object) {
-		if (level[a] > level[b]) {
-			swap(a, b);
-		}
-		b = bl_object.kthParent(b, level[b] - level[a]);
-		if (a == b)
-			return a;
-		for (int i = bl_object.maxLog; i >= 0; i--) {
-			int parent1 = bl_object.parent[a][i];
-			int parent2 = bl_object.parent[b][i];
-			if (parent2 != parent1 && parent1 != -1 && parent2 != -1) {
-				a = parent1;
-				b = parent2;
-			}
-		}
-		return bl_object.parent[a][0];
-	}
+    int n;
+    BinaryLifting* bl;
+    std::vector<int> depth;
+
+    LCA(int n, std::vector<int>* edges, int root, BinaryLifting* bl)
+        : n(n), bl(bl), depth(n, 0) {
+        _dfs(root, -1, edges);
+    }
+
+    void _dfs(int u, int par, std::vector<int>* edges) {
+        for (int v : edges[u])
+            if (v != par) {
+                depth[v] = depth[u] + 1;
+                _dfs(v, u, edges);
+            }
+    }
+
+    int getLCA(int a, int b) {
+        if (depth[a] < depth[b]) std::swap(a, b);
+        a = bl->kthParent(a, depth[a] - depth[b]);
+        if (a == b) return a;
+        for (int j = bl->maxLog; j >= 0; j--)
+            if (bl->parent[a][j] != bl->parent[b][j]) {
+                a = bl->parent[a][j];
+                b = bl->parent[b][j];
+            }
+        return bl->parent[a][0];
+    }
 };

@@ -1,1 +1,7 @@
 **/.DS_Store
+*.out
+a.out
+*.exe
+*.o
+tests/test_*
+!tests/test_*.cpp

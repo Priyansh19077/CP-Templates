@@ -1,49 +1,47 @@
-bool compare(pair<pair<int, int>, int>& a, pair<pair<int, int>, int>& b){
-    return a.ff.ss < b.ff.ss;
+// O((N+Q) log N) — Count distinct elements in ranges via offline processing + BIT
+// arr: input array (0-indexed, modified in place for coordinate compression)
+// queries: list of {l, r} inclusive ranges (0-indexed)
+// Returns ans[i] = count of distinct values in arr[queries[i].l .. queries[i].r]
+#include <algorithm>
+#include <map>
+#include <vector>
+
+static void _bit_update(int i, std::vector<int>& bit, int val) {
+    for (i++; i < (int)bit.size(); i += i & -i) bit[i] += val;
 }
-void update(int index, vector<int>& bit, int value){
-    for(; index < sz(bit); index += (index & (-index))){
-        bit[index] += value;
-    }
+static int _bit_query(int i, std::vector<int>& bit) {
+    int s = 0;
+    for (i++; i > 0; i -= i & -i) s += bit[i];
+    return s;
 }
-int query(int index, vector<int>& bit){
-    int sum = 0;
-    for(; index > 0; index -= (index & (-index))){
-        sum += bit[index];
+
+std::vector<int> distinctQueries(int n, int q, std::vector<int> arr,
+                                 std::vector<std::pair<int, int>>& queries) {
+    // Coordinate compress
+    std::map<int, int> compress;
+    int uid = 0;
+    for (int& x : arr) {
+        if (!compress.count(x)) compress[x] = uid++;
+        x = compress[x];
     }
-    return sum;
-}
-vector<int> distinctQueries(int n, int q, vector<int>& arr, vector<pair<int, int>>& queries){
-    map<int, int> compression;
-    int prev = 0;
-    for(auto &i : arr){
-        if(compression.find(i) == compression.end()){
-            compression[i] = prev;
-            prev++;
-        }
-        i = compression[i];
-    }
-    vector<int> lastIndex(sz(compression), -1);
-    vector<pair<pair<int, int>, int>> tempQueries(q);
-    for(int i = 0; i < q; i++){
-        tempQueries[i].ff.ff = queries[i].ff + 1;
-        tempQueries[i].ff.ss = queries[i].ss + 1;
-        tempQueries[i].ss = i;
-    }
-    vector<int> ans(q);
-    sort(all(tempQueries), compare);
-    int num = 0;
-    vector<int> bit(n + 1);
-    for(int i = 0; i < n; i++){
-        if(lastIndex[arr[i]] != -1){
-            update(lastIndex[arr[i]] + 1, bit, -1);
-        }
-        lastIndex[arr[i]] = i;
-        update(i + 1, bit, 1);
-        while(num < q && tempQueries[num].ff.ss == i + 1){
-            int index = tempQueries[num].ss;
-            ans[index] = query(i + 1, bit) - query(tempQueries[num].ff.ff - 1, bit);
-            num++;
+
+    // Tag and sort queries by right endpoint
+    std::vector<std::pair<std::pair<int, int>, int>> tagged(q);
+    for (int i = 0; i < q; i++) tagged[i] = {{queries[i].first + 1, queries[i].second + 1}, i};
+    std::sort(tagged.begin(), tagged.end(),
+              [](auto& a, auto& b) { return a.first.second < b.first.second; });
+
+    std::vector<int> lastSeen(uid, -1), bit(n + 1, 0), ans(q);
+    int qi = 0;
+    for (int i = 0; i < n; i++) {
+        if (lastSeen[arr[i]] != -1) _bit_update(lastSeen[arr[i]], bit, -1);
+        lastSeen[arr[i]] = i;
+        _bit_update(i, bit, 1);
+        while (qi < q && tagged[qi].first.second == i + 1) {
+            int l = tagged[qi].first.first - 1;
+            int r = tagged[qi].first.second - 1;
+            ans[tagged[qi].second] = _bit_query(r, bit) - (l > 0 ? _bit_query(l - 1, bit) : 0);
+            qi++;
         }
     }
     return ans;
