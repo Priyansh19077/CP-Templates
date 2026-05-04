@@ -1,4 +1,4 @@
-// O(VE²) — Maximum Network Flow via Edmonds-Karp (BFS-based Ford-Fulkerson)
+// O(E * max_flow) — Maximum Network Flow via Ford-Fulkerson with DFS augmentation
 // Build Flow(edges, n, source, sink), then call maxFlow()
 // edges[u] = list of {v, capacity}
 #include <bits/stdc++.h>
@@ -31,41 +31,29 @@ struct Flow {
         }
     }
 
-    long long bfs() {
-        const long long INF = LLONG_MAX / 2;
-        queue<int> q;
-        q.push(src);
-        visited[src] = iteration;
-        vector<int> prev(n, -1);
-        while (!q.empty()) {
-            int u = q.front(); q.pop();
-            if (u == dest) break;
-            for (int i : edges[u]) {
-                Edge& e = edgesT[i];
-                if (visited[e.dest] != iteration && e.val > 0) {
-                    visited[e.dest] = iteration;
-                    prev[e.dest] = e.index;
-                    q.push(e.dest);
+    long long dfs(int u, long long pushed) {
+        visited[u] = iteration;
+        if (u == dest) return pushed;
+        for (int i : edges[u]) {
+            Edge& e = edgesT[i];
+            if (visited[e.dest] != iteration && e.val > 0) {
+                long long val = dfs(e.dest, min(e.val, pushed));
+                if (val > 0) {
+                    e.val -= val;
+                    edgesT[e.residualIndex].val += val;
+                    return val;
                 }
             }
         }
-        if (prev[dest] == -1) return 0;
-
-        long long pushed = INF;
-        for (int u = dest; prev[u] != -1; u = edgesT[prev[u]].src)
-            pushed = min(pushed, edgesT[prev[u]].val);
-        for (int u = dest; prev[u] != -1; u = edgesT[prev[u]].src) {
-            edgesT[prev[u]].val -= pushed;
-            edgesT[edgesT[prev[u]].residualIndex].val += pushed;
-        }
-        return pushed;
+        return 0;
     }
 
     long long maxFlow() {
         if (!solved) {
             solved = true;
+            const long long INF = LLONG_MAX / 2;
             while (true) {
-                long long f = bfs();
+                long long f = dfs(src, INF);
                 if (f == 0) break;
                 flow += f;
                 iteration++;
