@@ -1,9 +1,10 @@
 // O(V+E) — Detect cycle in a directed graph using DFS three-color marking
 // edges[u] = adjacency list; returns true if a cycle exists
-#include <vector>
+#include <bits/stdc++.h>
+using namespace std;
 
-static bool _cycle_dfs(int u, std::vector<int>* edges,
-                        std::vector<bool>& white, std::vector<bool>& grey, std::vector<bool>& black) {
+bool _cycle_dfs(int u, vector<int>* edges,
+                vector<bool>& white, vector<bool>& grey, vector<bool>& black) {
     white[u] = false;
     grey[u] = true;
     for (int v : edges[u]) {
@@ -15,8 +16,8 @@ static bool _cycle_dfs(int u, std::vector<int>* edges,
     return false;
 }
 
-bool check_cycle(int n, std::vector<int>* edges) {
-    std::vector<bool> white(n, true), grey(n, false), black(n, false);
+bool check_cycle(int n, vector<int>* edges) {
+    vector<bool> white(n, true), grey(n, false), black(n, false);
     for (int i = 0; i < n; i++)
         if (white[i] && _cycle_dfs(i, edges, white, grey, black))
             return true;

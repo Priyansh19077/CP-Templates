@@ -1,8 +1,8 @@
 // O(E * max_flow) — Maximum Network Flow via Ford-Fulkerson with DFS augmentation
 // Build Flow(edges, n, source, sink), then call maxFlow()
 // edges[u] = list of {v, capacity}
-#include <climits>
-#include <vector>
+#include <bits/stdc++.h>
+using namespace std;
 
 struct Edge {
     int index, src, dest, residualIndex;
@@ -11,13 +11,13 @@ struct Edge {
 
 struct Flow {
     int n, src, dest, iteration = 0;
-    std::vector<Edge> edgesT;
-    std::vector<std::vector<int>> edges;
-    std::vector<int> visited;
+    vector<Edge> edgesT;
+    vector<vector<int>> edges;
+    vector<int> visited;
     bool solved = false;
     long long flow = 0;
 
-    Flow(std::vector<std::pair<int, long long>>* adj, int n, int s, int d)
+    Flow(vector<pair<int, long long>>* adj, int n, int s, int d)
         : n(n), src(s), dest(d), edges(n), visited(n, 0), iteration(1) {
         for (int u = 0; u < n; u++) {
             for (auto [v, cap] : adj[u]) {
@@ -37,7 +37,7 @@ struct Flow {
         for (int i : edges[u]) {
             Edge& e = edgesT[i];
             if (visited[e.dest] != iteration && e.val > 0) {
-                long long val = dfs(e.dest, std::min(e.val, pushed));
+                long long val = dfs(e.dest, min(e.val, pushed));
                 if (val > 0) {
                     e.val -= val;
                     edgesT[e.residualIndex].val += val;

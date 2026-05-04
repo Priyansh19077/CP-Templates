@@ -1,9 +1,8 @@
 // O(VE²) — Maximum Network Flow via Edmonds-Karp (BFS-based Ford-Fulkerson)
 // Build Flow(edges, n, source, sink), then call maxFlow()
 // edges[u] = list of {v, capacity}
-#include <climits>
-#include <queue>
-#include <vector>
+#include <bits/stdc++.h>
+using namespace std;
 
 struct Edge {
     int index, src, dest, residualIndex;
@@ -12,13 +11,13 @@ struct Edge {
 
 struct Flow {
     int n, src, dest, iteration = 0;
-    std::vector<Edge> edgesT;
-    std::vector<std::vector<int>> edges;
-    std::vector<int> visited;
+    vector<Edge> edgesT;
+    vector<vector<int>> edges;
+    vector<int> visited;
     bool solved = false;
     long long flow = 0;
 
-    Flow(std::vector<std::pair<int, long long>>* adj, int n, int s, int d)
+    Flow(vector<pair<int, long long>>* adj, int n, int s, int d)
         : n(n), src(s), dest(d), edges(n), visited(n, 0), iteration(1) {
         for (int u = 0; u < n; u++) {
             for (auto [v, cap] : adj[u]) {
@@ -34,10 +33,10 @@ struct Flow {
 
     long long bfs() {
         const long long INF = LLONG_MAX / 2;
-        std::queue<int> q;
+        queue<int> q;
         q.push(src);
         visited[src] = iteration;
-        std::vector<int> prev(n, -1);
+        vector<int> prev(n, -1);
         while (!q.empty()) {
             int u = q.front(); q.pop();
             if (u == dest) break;
@@ -54,7 +53,7 @@ struct Flow {
 
         long long pushed = INF;
         for (int u = dest; prev[u] != -1; u = edgesT[prev[u]].src)
-            pushed = std::min(pushed, edgesT[prev[u]].val);
+            pushed = min(pushed, edgesT[prev[u]].val);
         for (int u = dest; prev[u] != -1; u = edgesT[prev[u]].src) {
             edgesT[prev[u]].val -= pushed;
             edgesT[edgesT[prev[u]].residualIndex].val += pushed;

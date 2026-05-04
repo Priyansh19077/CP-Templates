@@ -1,16 +1,17 @@
 // Lazy Segment Tree — O(N) build, O(log N) range update and range query
 // Customise Node1 (merge, identity) and Update1 (apply, combine, identity) for your problem.
 // Example below: range-assign with range-sum queries.
-#include <vector>
+#include <bits/stdc++.h>
+using namespace std;
 
 template<typename Node, typename Update>
 struct LazySGT {
-    std::vector<Node> tree;
-    std::vector<bool> lazy;
-    std::vector<Update> updates;
+    vector<Node> tree;
+    vector<bool> lazy;
+    vector<Update> updates;
     int n, s;
 
-    LazySGT(int n, std::vector<long long>& a) : n(n), s(1) {
+    LazySGT(int n, vector<long long>& a) : n(n), s(1) {
         while (s < 2 * n) s <<= 1;
         tree.resize(s, Node());
         lazy.resize(s, false);
@@ -18,7 +19,7 @@ struct LazySGT {
         _build(a, 0, n - 1, 1);
     }
 
-    void _build(std::vector<long long>& a, int l, int r, int idx) {
+    void _build(vector<long long>& a, int l, int r, int idx) {
         if (l == r) { tree[idx] = Node(a[l]); return; }
         int m = (l + r) / 2;
         _build(a, l, m, 2 * idx);

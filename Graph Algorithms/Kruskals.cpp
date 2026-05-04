@@ -1,16 +1,15 @@
 // O(E log E) — Minimum Spanning Tree via Kruskal's algorithm
 // edges = list of {weight, u, v}; returns total MST weight
-#include <algorithm>
-#include <tuple>
-#include <vector>
+#include <bits/stdc++.h>
+using namespace std;
 
-static int _kruskal_get(int a, std::vector<int>& parent) {
+int _kruskal_get(int a, vector<int>& parent) {
     return parent[a] = (parent[a] == a ? a : _kruskal_get(parent[a], parent));
 }
 
-long long kruskals(int n, std::vector<std::tuple<long long, int, int>>& edges) {
-    std::sort(edges.begin(), edges.end());
-    std::vector<int> parent(n), rank(n, 0);
+long long kruskals(int n, vector<tuple<long long, int, int>>& edges) {
+    sort(edges.begin(), edges.end());
+    vector<int> parent(n), rank(n, 0);
     for (int i = 0; i < n; i++) parent[i] = i;
 
     long long total = 0;

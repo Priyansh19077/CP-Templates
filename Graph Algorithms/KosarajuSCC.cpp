@@ -1,11 +1,10 @@
 // O(V+E) — Strongly Connected Components via Kosaraju's algorithm
 // edges[u] = forward adjacency list; edgesT[u] = reverse adjacency list
 // Returns list of SCCs, each SCC is a vector of node indices
-#include <algorithm>
-#include <vector>
+#include <bits/stdc++.h>
+using namespace std;
 
-static void _scc_dfs_topo(int u, std::vector<int>* edges, std::vector<bool>& visited,
-                           std::vector<int>& order) {
+void _scc_dfs_topo(int u, vector<int>* edges, vector<bool>& visited, vector<int>& order) {
     visited[u] = true;
     for (int v : edges[u])
         if (!visited[v])
@@ -13,8 +12,7 @@ static void _scc_dfs_topo(int u, std::vector<int>* edges, std::vector<bool>& vis
     order.push_back(u);
 }
 
-static void _scc_dfs_collect(int u, std::vector<int>* edgesT, std::vector<bool>& visited,
-                              std::vector<int>& comp) {
+void _scc_dfs_collect(int u, vector<int>* edgesT, vector<bool>& visited, vector<int>& comp) {
     comp.push_back(u);
     visited[u] = true;
     for (int v : edgesT[u])
@@ -22,18 +20,18 @@ static void _scc_dfs_collect(int u, std::vector<int>* edgesT, std::vector<bool>&
             _scc_dfs_collect(v, edgesT, visited, comp);
 }
 
-std::vector<std::vector<int>> getSCC(int n, std::vector<int>* edges, std::vector<int>* edgesT) {
-    std::vector<bool> visited(n, false);
-    std::vector<int> order;
+vector<vector<int>> getSCC(int n, vector<int>* edges, vector<int>* edgesT) {
+    vector<bool> visited(n, false);
+    vector<int> order;
     for (int i = 0; i < n; i++)
         if (!visited[i])
             _scc_dfs_topo(i, edges, visited, order);
 
-    std::fill(visited.begin(), visited.end(), false);
-    std::vector<std::vector<int>> scc;
+    fill(visited.begin(), visited.end(), false);
+    vector<vector<int>> scc;
     for (int i = (int)order.size() - 1; i >= 0; i--) {
         if (!visited[order[i]]) {
-            std::vector<int> comp;
+            vector<int> comp;
             _scc_dfs_collect(order[i], edgesT, visited, comp);
             scc.push_back(comp);
         }

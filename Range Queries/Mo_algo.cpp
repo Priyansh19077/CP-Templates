@@ -1,18 +1,15 @@
 // O((N+Q)√N) — Mo's Algorithm for offline range queries (distinct count example)
 // arr: input array (0-indexed); queries: list of {l, r} inclusive ranges
 // Returns answer[i] = number of distinct elements in arr[queries[i].l .. queries[i].r]
-#include <algorithm>
-#include <cmath>
-#include <map>
-#include <vector>
+#include <bits/stdc++.h>
+using namespace std;
 
-std::vector<int> moDistinctQueries(int n, std::vector<int> arr,
-                                   std::vector<std::pair<int, int>>& queries) {
-    const int block = std::max(1, (int)std::sqrt(n));
+vector<int> moDistinctQueries(int n, vector<int> arr, vector<pair<int, int>>& queries) {
+    const int block = max(1, (int)sqrt(n));
     int q = (int)queries.size();
 
     // Coordinate compress arr
-    std::map<int, int> compress;
+    map<int, int> compress;
     int id = 0;
     for (int& x : arr) {
         if (!compress.count(x)) compress[x] = id++;
@@ -20,9 +17,9 @@ std::vector<int> moDistinctQueries(int n, std::vector<int> arr,
     }
 
     // Tag queries with original index, then sort by Mo's order
-    std::vector<std::pair<std::pair<int, int>, int>> indexed(q);
+    vector<pair<pair<int, int>, int>> indexed(q);
     for (int i = 0; i < q; i++) indexed[i] = {{queries[i].first, queries[i].second}, i};
-    std::sort(indexed.begin(), indexed.end(),
+    sort(indexed.begin(), indexed.end(),
         [&](auto& a, auto& b) {
             int ba = a.first.first / block, bb = b.first.first / block;
             if (ba != bb) return ba < bb;
@@ -30,7 +27,7 @@ std::vector<int> moDistinctQueries(int n, std::vector<int> arr,
                             : a.first.second < b.first.second;
         });
 
-    std::vector<int> freq(n, 0), ans(q);
+    vector<int> freq(n, 0), ans(q);
     int cur = 0, lo = 0, hi = -1;
 
     auto add = [&](int pos) { if (++freq[arr[pos]] == 1) cur++; };

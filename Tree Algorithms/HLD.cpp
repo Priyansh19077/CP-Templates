@@ -6,21 +6,19 @@
 //   hld.findAnswer(u, v)       — query over path u→v
 //   hld.makeUpdateatIndex(u, val) — point update at node u
 // Customise Node1 and Update1 for your query type (example: range-max below).
-#include <algorithm>
-#include <climits>
-#include <cmath>
-#include <vector>
+#include <bits/stdc++.h>
+using namespace std;
 
 // ── Binary Lifting ────────────────────────────────────────────────────────────
 struct BinaryLifting {
     int n, maxLog;
-    std::vector<int>* edges;
-    std::vector<std::vector<int>> parent;
+    vector<int>* edges;
+    vector<vector<int>> parent;
 
-    BinaryLifting(int n, std::vector<int>* edges, long long maxK, int root)
-        : n(n), edges(edges), maxLog((int)std::log2(maxK + 1) + 1),
-          parent(n, std::vector<int>((int)std::log2(maxK + 1) + 2, -1)) {
-        std::vector<bool> vis(n, false);
+    BinaryLifting(int n, vector<int>* edges, long long maxK, int root)
+        : n(n), edges(edges), maxLog((int)log2(maxK + 1) + 1),
+          parent(n, vector<int>((int)log2(maxK + 1) + 2, -1)) {
+        vector<bool> vis(n, false);
         _dfs(root, vis);
         for (int j = 1; j <= maxLog; j++)
             for (int u = 0; u < n; u++)
@@ -29,7 +27,7 @@ struct BinaryLifting {
     }
     BinaryLifting() : n(0), maxLog(0), edges(nullptr) {}
 
-    void _dfs(int u, std::vector<bool>& vis) {
+    void _dfs(int u, vector<bool>& vis) {
         vis[u] = true;
         for (int v : edges[u])
             if (!vis[v]) { parent[v][0] = u; _dfs(v, vis); }
@@ -46,10 +44,10 @@ struct BinaryLifting {
 struct LCA {
     int n;
     BinaryLifting* bl;
-    std::vector<int>* edges;
-    std::vector<int> level;
+    vector<int>* edges;
+    vector<int> level;
 
-    LCA(int n, std::vector<int>* edges, int root, BinaryLifting* bl)
+    LCA(int n, vector<int>* edges, int root, BinaryLifting* bl)
         : n(n), bl(bl), edges(edges), level(n, 0) {
         _dfs(root, -1);
     }
@@ -61,7 +59,7 @@ struct LCA {
     }
 
     int getLCA(int a, int b) {
-        if (level[a] < level[b]) std::swap(a, b);
+        if (level[a] < level[b]) swap(a, b);
         a = bl->kthParent(a, level[a] - level[b]);
         if (a == b) return a;
         for (int j = bl->maxLog; j >= 0; j--)
@@ -75,17 +73,17 @@ struct LCA {
 // ── Segment Tree (point update, range query) ──────────────────────────────────
 template<typename Node, typename Update>
 struct SegTree {
-    std::vector<Node> tree;
+    vector<Node> tree;
     int n, s;
 
-    SegTree(int n, std::vector<long long>& a) : n(n), s(1) {
+    SegTree(int n, vector<long long>& a) : n(n), s(1) {
         while (s < 2 * n) s <<= 1;
         tree.resize(s, Node());
         _build(a, 0, n - 1, 1);
     }
     SegTree() : n(0), s(0) {}
 
-    void _build(std::vector<long long>& a, int l, int r, int idx) {
+    void _build(vector<long long>& a, int l, int r, int idx) {
         if (l == r) { tree[idx] = Node(a[l]); return; }
         int m = (l + r) / 2;
         _build(a, l, m, 2 * idx);
@@ -121,7 +119,7 @@ struct Node1 {
     long long val;
     Node1() : val(LLONG_MIN / 2) {}
     Node1(long long v) : val(v) {}
-    void merge(const Node1& l, const Node1& r) { val = std::max(l.val, r.val); }
+    void merge(const Node1& l, const Node1& r) { val = max(l.val, r.val); }
 };
 struct Update1 {
     long long val;
@@ -133,14 +131,14 @@ struct Update1 {
 template<typename Node, typename Update>
 struct HLD {
     int n, root;
-    std::vector<int>* edges;
-    std::vector<int> bigChild, subtreeSize, chainHead, label;
-    std::vector<long long> values;
+    vector<int>* edges;
+    vector<int> bigChild, subtreeSize, chainHead, label;
+    vector<long long> values;
     SegTree<Node, Update> seg;
     LCA* lca;
     BinaryLifting* bl;
 
-    HLD(int n, std::vector<int>* edges, int root, std::vector<long long>& vals, LCA* lca)
+    HLD(int n, vector<int>* edges, int root, vector<long long>& vals, LCA* lca)
         : n(n), root(root), edges(edges), bigChild(n, -1), subtreeSize(n),
           chainHead(n), label(n), values(vals), lca(lca), bl(lca->bl) {
         _precompute(root, -1);

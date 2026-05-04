@@ -1,16 +1,15 @@
 // O(E log V) — Minimum Spanning Tree via Prim's algorithm (set-based priority queue)
 // edges[u] = list of {v, weight} for undirected graph; returns total MST weight
-#include <climits>
-#include <set>
-#include <vector>
+#include <bits/stdc++.h>
+using namespace std;
 
-long long prims(int n, std::vector<std::pair<int, long long>>* edges) {
+long long prims(int n, vector<pair<int, long long>>* edges) {
     if (n <= 1) return 0;
     const long long INF = LLONG_MAX / 2;
-    std::vector<long long> dist(n, INF);
-    std::vector<bool> visited(n, false);
+    vector<long long> dist(n, INF);
+    vector<bool> visited(n, false);
     dist[0] = 0;
-    std::set<std::pair<long long, int>> pq;
+    set<pair<long long, int>> pq;
     pq.insert({0, 0});
     long long total = 0;
 

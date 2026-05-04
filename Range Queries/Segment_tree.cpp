@@ -1,21 +1,21 @@
 // Segment Tree — O(N) build, O(log N) point update and range query
 // Customise Node1 (merge logic, identity) and Update1 (apply logic) for your problem.
 // Example below: XOR with point-set updates.
-#include <algorithm>
-#include <vector>
+#include <bits/stdc++.h>
+using namespace std;
 
 template<typename Node, typename Update>
 struct SegTree {
-    std::vector<Node> tree;
+    vector<Node> tree;
     int n, s;
 
-    SegTree(int n, std::vector<long long>& a) : n(n), s(1) {
+    SegTree(int n, vector<long long>& a) : n(n), s(1) {
         while (s < 2 * n) s <<= 1;
         tree.resize(s, Node());
         _build(a, 0, n - 1, 1);
     }
 
-    void _build(std::vector<long long>& a, int l, int r, int idx) {
+    void _build(vector<long long>& a, int l, int r, int idx) {
         if (l == r) { tree[idx] = Node(a[l]); return; }
         int m = (l + r) / 2;
         _build(a, l, m, 2 * idx);

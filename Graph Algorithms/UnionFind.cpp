@@ -1,10 +1,11 @@
 // O(α(N)) per operation — Disjoint Set Union with path compression and union by rank
-#include <vector>
+#include <bits/stdc++.h>
+using namespace std;
 
 struct UnionFind {
     int n;
-    std::vector<int> rank;
-    std::vector<int> parent;
+    vector<int> rank;
+    vector<int> parent;
 
     UnionFind(int n) : n(n), rank(n, 0), parent(n) {
         for (int i = 0; i < n; i++) parent[i] = i;

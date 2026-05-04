@@ -3,18 +3,18 @@
 // Call decompose(root, edges, centroidTree, -1) to build centroid tree.
 // centroidTree[u] = neighbours of u in the centroid decomposition tree.
 // Returns the centroid of the initial component.
-#include <algorithm>
-#include <vector>
+#include <bits/stdc++.h>
+using namespace std;
 
-std::vector<std::pair<int, int>> edgeList;
-std::vector<bool> deleted;
-std::vector<int> subtree;
+vector<pair<int, int>> edgeList;
+vector<bool> deleted;
+vector<int> subtree;
 
-static int _getOther(int edgeIdx, int u) {
+int _getOther(int edgeIdx, int u) {
     return edgeList[edgeIdx].first ^ edgeList[edgeIdx].second ^ u;
 }
 
-static void _computeSubtrees(int u, std::vector<int>* edges, int parent) {
+void _computeSubtrees(int u, vector<int>* edges, int parent) {
     subtree[u] = 1;
     for (int i : edges[u]) {
         int v = _getOther(i, u);
@@ -25,7 +25,7 @@ static void _computeSubtrees(int u, std::vector<int>* edges, int parent) {
     }
 }
 
-static int _findCentroid(int u, std::vector<int>* edges, int treeSize, int parent) {
+int _findCentroid(int u, vector<int>* edges, int treeSize, int parent) {
     for (int i : edges[u]) {
         int v = _getOther(i, u);
         if (!deleted[i] && v != parent && subtree[v] > treeSize / 2)
@@ -34,7 +34,7 @@ static int _findCentroid(int u, std::vector<int>* edges, int treeSize, int paren
     return u;
 }
 
-int decompose(int root, std::vector<int>* edges, std::vector<int>* centroidTree, int parent) {
+int decompose(int root, vector<int>* edges, vector<int>* centroidTree, int parent) {
     _computeSubtrees(root, edges, -1);
     int n = subtree[root];
     root = _findCentroid(root, edges, n, -1);

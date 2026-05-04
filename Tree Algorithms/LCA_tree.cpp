@@ -1,15 +1,15 @@
 // O(N log N) preprocessing, O(log N) per LCA query — via Binary Lifting
 // Build BinaryLifting first, then LCA. Call lca.getLCA(u, v).
-#include <cmath>
-#include <vector>
+#include <bits/stdc++.h>
+using namespace std;
 
 struct BinaryLifting {
     int n, maxLog;
-    std::vector<std::vector<int>> parent;
+    vector<vector<int>> parent;
 
-    BinaryLifting(int n, std::vector<int>* edges, long long maxK, int root)
-        : n(n), maxLog((int)std::log2(maxK + 1) + 1),
-          parent(n, std::vector<int>((int)std::log2(maxK + 1) + 2, -1)) {
+    BinaryLifting(int n, vector<int>* edges, long long maxK, int root)
+        : n(n), maxLog((int)log2(maxK + 1) + 1),
+          parent(n, vector<int>((int)log2(maxK + 1) + 2, -1)) {
         _dfs(root, -1, edges);
         for (int j = 1; j <= maxLog; j++)
             for (int u = 0; u < n; u++)
@@ -17,7 +17,7 @@ struct BinaryLifting {
                     parent[u][j] = parent[parent[u][j - 1]][j - 1];
     }
 
-    void _dfs(int u, int par, std::vector<int>* edges) {
+    void _dfs(int u, int par, vector<int>* edges) {
         parent[u][0] = par;
         for (int v : edges[u])
             if (v != par)
@@ -39,14 +39,14 @@ struct BinaryLifting {
 struct LCA {
     int n;
     BinaryLifting* bl;
-    std::vector<int> depth;
+    vector<int> depth;
 
-    LCA(int n, std::vector<int>* edges, int root, BinaryLifting* bl)
+    LCA(int n, vector<int>* edges, int root, BinaryLifting* bl)
         : n(n), bl(bl), depth(n, 0) {
         _dfs(root, -1, edges);
     }
 
-    void _dfs(int u, int par, std::vector<int>* edges) {
+    void _dfs(int u, int par, vector<int>* edges) {
         for (int v : edges[u])
             if (v != par) {
                 depth[v] = depth[u] + 1;
@@ -55,7 +55,7 @@ struct LCA {
     }
 
     int getLCA(int a, int b) {
-        if (depth[a] < depth[b]) std::swap(a, b);
+        if (depth[a] < depth[b]) swap(a, b);
         a = bl->kthParent(a, depth[a] - depth[b]);
         if (a == b) return a;
         for (int j = bl->maxLog; j >= 0; j--)
