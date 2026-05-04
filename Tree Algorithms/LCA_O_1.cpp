@@ -1,102 +1,72 @@
+// O(N log N) preprocessing, O(1) per LCA query — via Euler tour + Sparse Table
+// Build LCA_O_1(n, edges, root), then call query(u, v). getDepth(u) returns depth.
+#include <bits/stdc++.h>
+using namespace std;
+
 template<typename Node>
 struct SparseTable {
     vector<vector<Node>> table;
-    vector<int> logValues;
-    int n;
-    int maxLog;
-    vector<int> a;
-    SparseTable(int n1, vector<int> &arr) {
-        n = n1;
-        a = arr;
-        table.resize(n);
-        logValues.resize(n + 1);
-        maxLog = log2(n);
-        logValues[1] = 0;
-        for (int i = 2; i <= n; i++) {
-            logValues[i] = logValues[i / 2] + 1;
-        }
-        for (int i = 0; i < n; i++) {
-            table[i].resize(maxLog + 1);
-            fill(all(table[i]), Node());
-        }
-        build();
+    vector<int> logVal;
+    int n, maxLog;
+
+    SparseTable(int n, vector<int>& arr) : n(n), logVal(n + 1, 0) {
+        maxLog = n > 1 ? (int)log2(n) : 0;
+        logVal[1] = 0;
+        for (int i = 2; i <= n; i++) logVal[i] = logVal[i / 2] + 1;
+        table.assign(n, vector<Node>(maxLog + 1, Node()));
+        for (int i = 0; i < n; i++) table[i][0] = Node(arr[i], i);
+        for (int j = 1; j <= maxLog; j++)
+            for (int i = 0; i + (1 << j) <= n; i++)
+                table[i][j].merge(table[i][j - 1], table[i + (1 << (j - 1))][j - 1]);
     }
-    void build() {
-        for (int i = 0; i < n; i++) {
-            table[i][0] = Node(a[i], i);
-        }
-        for (int i = 1; i <= maxLog; i++) {
-            for (int j = 0; (j + (1 << i)) <= n; j++) {
-                table[j][i].merge(table[j][i - 1], table[j + (1 << (i - 1))][i - 1]);
-            }
-        }
-    }
-    Node queryNormal(int left, int right) {
-        Node ans = Node();
-        for (int j = logValues[right - left + 1]; j >= 0; j--) {
-            if ((1 << j) <= right - left + 1) {
-                ans.merge(ans, table[left][j]);
-                left += (1 << j);
-            }
-        }
-        return ans;
-    }
-    Node queryIdempotent(int left, int right) {
-        int j = logValues[right - left + 1];
-        Node ans = Node();
-        ans.merge(table[left][j], table[right - (1 << j) + 1][j]);
+
+    Node queryIdempotent(int l, int r) {
+        int j = logVal[r - l + 1];
+        Node ans;
+        ans.merge(table[l][j], table[r - (1 << j) + 1][j]);
         return ans;
     }
 };
-struct Node1 {
-    int val; // store more info if required
-    int index;
-    Node1() { // Identity Element
-        val = 1e9;
-        index = -1;
-    }
-    Node1(int v, int ind) {
-        val = v;
-        index = ind;
-    }
-    void merge(Node1 &l, Node1 &r) {
-        if(l.val < r.val){
-            val = l.val;
-            index = l.index;
-        }else{
-            val = r.val;
-            index = r.index;
-        }
+
+struct MinNode {
+    int val = 1e9, idx = -1;
+    MinNode() = default;
+    MinNode(int v, int i) : val(v), idx(i) {}
+    void merge(const MinNode& l, const MinNode& r) {
+        if (l.val <= r.val) { val = l.val; idx = l.idx; }
+        else { val = r.val; idx = r.idx; }
     }
 };
-struct LCA_O_1{
+
+struct LCA_O_1 {
     int n;
-    vector<int> eulerTour, index;
-    vector<int> node;
-    SparseTable<Node1> sp = SparseTable<Node1>(0, eulerTour);
-    LCA_O_1(int n1, vector<int>* edges, int root){
-        n = n1;
-        index.resize(n);
-        dfs(root, edges, -1, 0);
-        sp = SparseTable<Node1>(sz(eulerTour), eulerTour);
-        debug(sz(eulerTour))
+    vector<int> eulerDepth, nodeAt, firstOccurrence;
+    SparseTable<MinNode> sp;
+
+    LCA_O_1(int n, vector<int>* edges, int root)
+        : n(n), firstOccurrence(n), sp(0, eulerDepth) {
+        _dfs(root, -1, edges, 0);
+        sp = SparseTable<MinNode>((int)eulerDepth.size(), eulerDepth);
     }
-    void dfs(int root, vector<int>* edges, int parent, int height){
-        eulerTour.pb(height);
-        node.pb(root);
-        index[root] = sz(eulerTour) - 1;
-        for(auto i : edges[root]){
-            if(i != parent){
-                dfs(i, edges, root, height + 1);
-                eulerTour.pb(height);
-                node.pb(root);
+
+    void _dfs(int u, int par, vector<int>* edges, int depth) {
+        firstOccurrence[u] = (int)eulerDepth.size();
+        eulerDepth.push_back(depth);
+        nodeAt.push_back(u);
+        for (int v : edges[u]) {
+            if (v != par) {
+                _dfs(v, u, edges, depth + 1);
+                eulerDepth.push_back(depth);
+                nodeAt.push_back(u);
             }
         }
     }
-    inline int query(int a, int b){
-        return node[sp.queryIdempotent(min(index[a], index[b]), max(index[a], index[b])).index];
+
+    int query(int u, int v) {
+        int l = min(firstOccurrence[u], firstOccurrence[v]);
+        int r = max(firstOccurrence[u], firstOccurrence[v]);
+        return nodeAt[sp.queryIdempotent(l, r).idx];
     }
-    inline int getDepth(int a){
-        return eulerTour[index[a]];
-    }
+
+    int getDepth(int u) { return eulerDepth[firstOccurrence[u]]; }
 };
