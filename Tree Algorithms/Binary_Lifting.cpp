@@ -1,51 +1,37 @@
+// O(N log N) preprocessing, O(log N) per kth-ancestor query
+// Build BinaryLifting(n, edges, maxK, root) where maxK is the max k you'll query
+// kthParent(u, k) returns the k-th ancestor of u, or -1 if it doesn't exist
+#include <bits/stdc++.h>
+using namespace std;
+
 struct BinaryLifting {
-    int n;
-    int maxLog;
-    ll maxRequirement;
+    int n, maxLog;
     vector<vector<int>> parent;
-    BinaryLifting(int n1, vector<int> *edges, ll requirement, int root) {
-        n = n1;
-        parent.resize(n1);
-        maxLog = log2(requirement + 1);
-        maxRequirement = requirement;
-        for (int i = 0; i < n; i++) {
-            parent[i].resize(maxLog + 1);
-            for (int j = 0; j <= maxLog; j++) {
-                parent[i][j] = -1;
-            }
-        }
-        fillParentTable(root, edges);
+
+    BinaryLifting(int n, vector<int>* edges, long long maxK, int root)
+        : n(n), maxLog((int)log2(maxK + 1) + 1), parent(n, vector<int>((int)log2(maxK + 1) + 2, -1)) {
+        _dfs(root, -1, edges);
+        for (int j = 1; j <= maxLog; j++)
+            for (int u = 0; u < n; u++)
+                if (parent[u][j - 1] != -1)
+                    parent[u][j] = parent[parent[u][j - 1]][j - 1];
     }
-    void fillParentTable(int root, vector<int> *edges) {
-        vector<bool> visited(n);
-        dfsBinaryLifting(root, edges, visited);
-        int intermediate = -1;
-        for (int i = 1; i <= maxLog; i++) {
-            for (int j = 0; j < n; j++) {
-                intermediate = parent[j][i - 1];
-                if (intermediate != -1) {
-                    parent[j][i] = parent[intermediate][i - 1];
-                }
-            }
-        }
+
+    void _dfs(int u, int par, vector<int>* edges) {
+        parent[u][0] = par;
+        for (int v : edges[u])
+            if (v != par)
+                _dfs(v, u, edges);
     }
-    void dfsBinaryLifting(int root, vector<int> *edges, vector<bool> &visited) {
-        visited[root] = true;
-        for (auto i : edges[root]) {
-            if (!visited[i]) {
-                parent[i][0] = root;
-                dfsBinaryLifting(i, edges, visited);
+
+    int kthParent(int u, int k) {
+        for (int j = maxLog; j >= 0; j--) {
+            if (k >= (1 << j)) {
+                u = parent[u][j];
+                k -= (1 << j);
+                if (u == -1) return -1;
             }
         }
-    }
-    int kthParent(int x, int k) {
-        for(int i = 0; i <= maxLog; i++){
-            if((k >> i) & 1){ 
-                if(x == -1)
-                    return x;
-                x = parent[x][i];
-            }
-        }
-        return x;
+        return u;
     }
 };
