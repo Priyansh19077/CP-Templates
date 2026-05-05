@@ -29,10 +29,10 @@ int run_tests() {
         vector<long long> a = {3, 1, 4, 1, 5, 9, 2, 6};
         SparseTable<Node1> sp(8, a);
 
-        ASSERT_EQ(sp.queryNormal(0, 2).val, 6LL);   // 3^1^4 = 6
-        ASSERT_EQ(sp.queryNormal(0, 0).val, 3LL);
-        ASSERT_EQ(sp.queryNormal(2, 5).val, 9LL);   // 4^1^5^9 = 9
-        ASSERT_EQ(sp.queryNormal(5, 7).val, 13LL);  // 9^2^6 = 13
+        ASSERT_EQ(sp.queryNormal(0, 2).val, brute_xor(a, 0, 2));
+        ASSERT_EQ(sp.queryNormal(0, 0).val, brute_xor(a, 0, 0));
+        ASSERT_EQ(sp.queryNormal(2, 5).val, brute_xor(a, 2, 5));
+        ASSERT_EQ(sp.queryNormal(5, 7).val, brute_xor(a, 5, 7));
         ASSERT_EQ(sp.queryNormal(0, 7).val, brute_xor(a, 0, 7));
         ASSERT_EQ(sp.queryNormal(1, 6).val, brute_xor(a, 1, 6));
     }
@@ -41,25 +41,25 @@ int run_tests() {
     {
         vector<long long> a = {42};
         SparseTable<Node1> sp(1, a);
-        ASSERT_EQ(sp.queryNormal(0, 0).val, 42LL);
+        ASSERT_EQ(sp.queryNormal(0, 0).val, brute_xor(a, 0, 0));
     }
 
     // --- Two elements ---
     {
         vector<long long> a = {10, 7};
         SparseTable<Node1> sp(2, a);
-        ASSERT_EQ(sp.queryNormal(0, 0).val, 10LL);
-        ASSERT_EQ(sp.queryNormal(1, 1).val, 7LL);
-        ASSERT_EQ(sp.queryNormal(0, 1).val, 13LL);  // 10^7
+        ASSERT_EQ(sp.queryNormal(0, 0).val, brute_xor(a, 0, 0));
+        ASSERT_EQ(sp.queryNormal(1, 1).val, brute_xor(a, 1, 1));
+        ASSERT_EQ(sp.queryNormal(0, 1).val, brute_xor(a, 0, 1));
     }
 
     // --- All same values (XOR) ---
     {
         vector<long long> a(8, 5);
         SparseTable<Node1> sp(8, a);
-        ASSERT_EQ(sp.queryNormal(0, 7).val, 0LL);  // even count → 0
-        ASSERT_EQ(sp.queryNormal(0, 6).val, 5LL);  // odd count → 5
-        ASSERT_EQ(sp.queryNormal(0, 0).val, 5LL);
+        ASSERT_EQ(sp.queryNormal(0, 7).val, brute_xor(a, 0, 7));  // even count → 0
+        ASSERT_EQ(sp.queryNormal(0, 6).val, brute_xor(a, 0, 6));  // odd count → 5
+        ASSERT_EQ(sp.queryNormal(0, 0).val, brute_xor(a, 0, 0));
     }
 
     // --- All zeros ---
@@ -68,7 +68,7 @@ int run_tests() {
         SparseTable<Node1> sp(5, a);
         for (int l = 0; l < 5; l++)
             for (int r = l; r < 5; r++)
-                ASSERT_EQ(sp.queryNormal(l, r).val, 0LL);
+                ASSERT_EQ(sp.queryNormal(l, r).val, brute_xor(a, l, r));
     }
 
     // --- Power-of-two size (n=16), exhaustive queryNormal ---
@@ -93,20 +93,21 @@ int run_tests() {
     {
         vector<long long> a(6, 3);
         SparseTable<NodeMin> sp(6, a);
-        ASSERT_EQ(sp.queryIdempotent(0, 5).val, 3LL);
-        ASSERT_EQ(sp.queryIdempotent(2, 4).val, 3LL);
+        ASSERT_EQ(sp.queryIdempotent(0, 5).val, brute_min(a, 0, 5));
+        ASSERT_EQ(sp.queryIdempotent(2, 4).val, brute_min(a, 2, 4));
     }
 
-    // --- Idempotent: min of single element ---
+    // --- Idempotent: single element ---
     {
         vector<long long> a = {99};
         SparseTable<NodeMin> sp(1, a);
-        ASSERT_EQ(sp.queryIdempotent(0, 0).val, 99LL);
+        ASSERT_EQ(sp.queryIdempotent(0, 0).val, brute_min(a, 0, 0));
     }
 
     // --- Stress test: n=500, random XOR range queries ---
     {
-        mt19937 rng(17);
+        auto seed = chrono::steady_clock::now().time_since_epoch().count();
+        mt19937 rng(seed);
         const int n = 500;
         vector<long long> a(n);
         for (int i = 0; i < n; i++) a[i] = rng() % 1000000;
@@ -116,13 +117,17 @@ int run_tests() {
             int l = rng() % n;
             int r = rng() % n;
             if (l > r) swap(l, r);
-            ASSERT_EQ(sp.queryNormal(l, r).val, brute_xor(a, l, r));
+            long long got = sp.queryNormal(l, r).val;
+            long long expected = brute_xor(a, l, r);
+            if (got != expected) cerr << "XOR stress test failed (seed=" << seed << ")\n";
+            ASSERT_EQ(got, expected);
         }
     }
 
     // --- Stress test: n=500, random min queries (idempotent) ---
     {
-        mt19937 rng(31);
+        auto seed = chrono::steady_clock::now().time_since_epoch().count();
+        mt19937 rng(seed);
         const int n = 500;
         vector<long long> a(n);
         for (int i = 0; i < n; i++) a[i] = (long long)(rng() % 1000000);
@@ -132,7 +137,10 @@ int run_tests() {
             int l = rng() % n;
             int r = rng() % n;
             if (l > r) swap(l, r);
-            ASSERT_EQ(sp.queryIdempotent(l, r).val, brute_min(a, l, r));
+            long long got = sp.queryIdempotent(l, r).val;
+            long long expected = brute_min(a, l, r);
+            if (got != expected) cerr << "Min stress test failed (seed=" << seed << ")\n";
+            ASSERT_EQ(got, expected);
         }
     }
 

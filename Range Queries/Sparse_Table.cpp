@@ -6,8 +6,8 @@ using namespace std;
 template<typename Node>
 struct SparseTable {
     vector<vector<Node>> table;
-    vector<long long> logVal;
     int n, maxLog;
+    vector<long long> logVal;
 
     SparseTable(int n, vector<long long>& a) : n(n), logVal(n + 1, 0) {
         maxLog = n > 1 ? (int)log2(n) : 0;

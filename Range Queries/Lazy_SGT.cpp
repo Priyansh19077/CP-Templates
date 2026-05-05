@@ -11,7 +11,9 @@ struct LazySGT {
     vector<Update> updates;
     int n, s;
 
-    LazySGT(int n, vector<long long>& a) : n(n), s(1) {
+    LazySGT(int n, vector<long long>& a) {
+        this->n = n;
+        s = 1;
         while (s < 2 * n) s <<= 1;
         tree.resize(s, Node());
         lazy.resize(s, false);
@@ -64,8 +66,14 @@ struct LazySGT {
         return ans;
     }
 
-    void make_update(int l, int r, long long val) { Update u(val); _update(0, n - 1, 1, l, r, u); }
-    Node make_query(int l, int r) { return _query(0, n - 1, 1, l, r); }
+    void make_update(int l, int r, long long val) {
+        Update u(val);
+        _update(0, n - 1, 1, l, r, u);
+    }
+
+    Node make_query(int l, int r) {
+        return _query(0, n - 1, 1, l, r);
+    }
 };
 
 // Example: range-assign update, range-sum query
