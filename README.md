@@ -25,22 +25,49 @@ All 29 algorithms have tests that run automatically on every push via GitHub Act
 | [Template.cpp](TemplateStuff/Template.cpp) | Contest boilerplate: fast I/O, common macros, math utilities, debug helpers |
 | [Int_128.cpp](TemplateStuff/Int_128.cpp) | 128-bit integer I/O and debug support |
 
-### Graph Algorithms
+### DSU
 
 | File | Complexity | Description |
 |------|-----------|-------------|
-| [Dijkstra.cpp](Graph%20Algorithms/Dijkstra.cpp) | O(E log V) | Single-source shortest path (non-negative weights) |
-| [BellmanFord.cpp](Graph%20Algorithms/BellmanFord.cpp) | O(VE) | Single-source shortest path; handles negative weights and detects negative cycles |
-| [FloydWarshall.cpp](Graph%20Algorithms/FloydWarshall.cpp) | O(V³) | All-pairs shortest paths |
-| [Kruskals.cpp](Graph%20Algorithms/Kruskals.cpp) | O(E log E) | Minimum spanning tree |
-| [Prims.cpp](Graph%20Algorithms/Prims.cpp) | O(E log V) | Minimum spanning tree (set-based priority queue) |
-| [UnionFind.cpp](Graph%20Algorithms/UnionFind.cpp) | O(α(N)) | Disjoint Set Union with path compression and union by rank |
-| [Topological_sorting.cpp](Graph%20Algorithms/Topological_sorting.cpp) | O(V+E) | Topological ordering via DFS post-order |
-| [KosarajuSCC.cpp](Graph%20Algorithms/KosarajuSCC.cpp) | O(V+E) | Strongly Connected Components via Kosaraju's algorithm |
-| [Cycle_in_DAG.cpp](Graph%20Algorithms/Cycle_in_DAG.cpp) | O(V+E) | Cycle detection in a directed graph |
-| [EulerianCircuit.cpp](Graph%20Algorithms/EulerianCircuit.cpp) | O(E) | Eulerian path/circuit via Hierholzer's algorithm |
-| [FordFulkerson.cpp](Graph%20Algorithms/FordFulkerson.cpp) | O(E · max_flow) | Maximum network flow via DFS augmentation |
-| [EdmondsKarp.cpp](Graph%20Algorithms/EdmondsKarp.cpp) | O(VE²) | Maximum network flow via BFS augmentation (Edmonds-Karp) |
+| [UnionFind.cpp](DSU/UnionFind.cpp) | O(α(N)) | Disjoint Set Union with path compression and union by rank |
+
+### Graph Algorithms
+
+#### Shortest Paths
+
+| File | Complexity | Description |
+|------|-----------|-------------|
+| [Dijkstra.cpp](Graph%20Algorithms/Shortest%20Paths/Dijkstra.cpp) | O(E log V) | Single-source shortest path (non-negative weights) |
+| [BellmanFord.cpp](Graph%20Algorithms/Shortest%20Paths/BellmanFord.cpp) | O(VE) | Single-source shortest path; handles negative weights and detects negative cycles |
+| [FloydWarshall.cpp](Graph%20Algorithms/Shortest%20Paths/FloydWarshall.cpp) | O(V³) | All-pairs shortest paths |
+
+#### MST
+
+| File | Complexity | Description |
+|------|-----------|-------------|
+| [Kruskals.cpp](Graph%20Algorithms/MST/Kruskals.cpp) | O(E log E) | Minimum spanning tree |
+| [Prims.cpp](Graph%20Algorithms/MST/Prims.cpp) | O(E log V) | Minimum spanning tree |
+
+#### Network Flow
+
+| File | Complexity | Description |
+|------|-----------|-------------|
+| [FordFulkerson.cpp](Graph%20Algorithms/Network%20Flow/FordFulkerson.cpp) | O(E · max_flow) | Maximum network flow via DFS augmentation |
+| [EdmondsKarp.cpp](Graph%20Algorithms/Network%20Flow/EdmondsKarp.cpp) | O(VE²) | Maximum network flow via BFS augmentation |
+
+#### SCC
+
+| File | Complexity | Description |
+|------|-----------|-------------|
+| [KosarajuSCC.cpp](Graph%20Algorithms/SCC/KosarajuSCC.cpp) | O(V+E) | Strongly Connected Components via Kosaraju's algorithm |
+
+#### DAG
+
+| File | Complexity | Description |
+|------|-----------|-------------|
+| [TopologicalSort.cpp](Graph%20Algorithms/DAG/TopologicalSort.cpp) | O(V+E) | Topological ordering via DFS post-order |
+| [CycleInDAG.cpp](Graph%20Algorithms/DAG/CycleInDAG.cpp) | O(V+E) | Cycle detection in a directed graph |
+| [EulerianCircuit.cpp](Graph%20Algorithms/DAG/EulerianCircuit.cpp) | O(E) | Eulerian path/circuit via Hierholzer's algorithm |
 
 ### Tree Algorithms
 
@@ -59,7 +86,7 @@ All 29 algorithms have tests that run automatically on every push via GitHub Act
 | [Segment_tree.cpp](Range%20Queries/Segment_tree.cpp) | O(N) build / O(log N) | Point update, range query — customisable Node and Update |
 | [Lazy_SGT.cpp](Range%20Queries/Lazy_SGT.cpp) | O(N) build / O(log N) | Range update, range query with lazy propagation |
 | [Sparse_Table.cpp](Range%20Queries/Sparse_Table.cpp) | O(N log N) build / O(1) or O(log N) | Static range queries — O(1) for idempotent ops (min/max) |
-| [Mo_algo.cpp](Range%20Queries/Mo_algo.cpp) | O((N+Q)√N) | Offline range queries via Mo's algorithm (distinct count example) |
+| [Mo_algo.cpp](Range%20Queries/Mo_algo.cpp) | O((N+Q)√N) | Offline range queries via Mo's algorithm — customisable Range struct |
 
 ### String Algorithms
 
