@@ -9,8 +9,7 @@ int run_tests() {
     {
         vector<long long> arr = {1, 2, 3, 4, 5};
         vector<pair<int, int>> queries = {{0, 2}, {1, 3}, {0, 4}, {2, 4}};
-        Range1 r((int)queries.size());
-        moQuery(5, arr, queries, r);
+        auto r = moQuery<Range1>(5, arr, queries);
         ASSERT_EQ(r.ans[0], brute_sum(arr, 0, 2));
         ASSERT_EQ(r.ans[1], brute_sum(arr, 1, 3));
         ASSERT_EQ(r.ans[2], brute_sum(arr, 0, 4));
@@ -21,8 +20,7 @@ int run_tests() {
     {
         vector<long long> arr = {10, 20, 30, 40};
         vector<pair<int, int>> queries = {{0, 0}, {1, 1}, {3, 3}};
-        Range1 r((int)queries.size());
-        moQuery(4, arr, queries, r);
+        auto r = moQuery<Range1>(4, arr, queries);
         ASSERT_EQ(r.ans[0], brute_sum(arr, 0, 0));
         ASSERT_EQ(r.ans[1], brute_sum(arr, 1, 1));
         ASSERT_EQ(r.ans[2], brute_sum(arr, 3, 3));
@@ -32,8 +30,7 @@ int run_tests() {
     {
         vector<long long> arr(6, 0);
         vector<pair<int, int>> queries = {{0, 5}, {1, 4}, {2, 3}};
-        Range1 r((int)queries.size());
-        moQuery(6, arr, queries, r);
+        auto r = moQuery<Range1>(6, arr, queries);
         ASSERT_EQ(r.ans[0], brute_sum(arr, 0, 5));
         ASSERT_EQ(r.ans[1], brute_sum(arr, 1, 4));
         ASSERT_EQ(r.ans[2], brute_sum(arr, 2, 3));
@@ -43,8 +40,7 @@ int run_tests() {
     {
         vector<long long> arr(8, 7);
         vector<pair<int, int>> queries = {{0, 7}, {0, 3}, {4, 7}, {2, 5}};
-        Range1 r((int)queries.size());
-        moQuery(8, arr, queries, r);
+        auto r = moQuery<Range1>(8, arr, queries);
         ASSERT_EQ(r.ans[0], brute_sum(arr, 0, 7));
         ASSERT_EQ(r.ans[1], brute_sum(arr, 0, 3));
         ASSERT_EQ(r.ans[2], brute_sum(arr, 4, 7));
@@ -55,8 +51,7 @@ int run_tests() {
     {
         vector<long long> arr = {3, 1, 4, 1, 5, 9, 2, 6};
         vector<pair<int, int>> queries = {{0, 7}};
-        Range1 r((int)queries.size());
-        moQuery(8, arr, queries, r);
+        auto r = moQuery<Range1>(8, arr, queries);
         ASSERT_EQ(r.ans[0], brute_sum(arr, 0, 7));
     }
 
@@ -64,8 +59,7 @@ int run_tests() {
     {
         vector<long long> arr = {1, 2, 3};
         vector<pair<int, int>> queries = {{0, 2}, {0, 2}, {0, 2}};
-        Range1 r((int)queries.size());
-        moQuery(3, arr, queries, r);
+        auto r = moQuery<Range1>(3, arr, queries);
         ASSERT_EQ(r.ans[0], brute_sum(arr, 0, 2));
         ASSERT_EQ(r.ans[1], brute_sum(arr, 0, 2));
         ASSERT_EQ(r.ans[2], brute_sum(arr, 0, 2));
@@ -87,8 +81,7 @@ int run_tests() {
             queries[i] = {l, r};
         }
 
-        Range1 r(q);
-        moQuery(n, arr, queries, r);
+        auto r = moQuery<Range1>(n, arr, queries);
         for (int i = 0; i < q; i++) {
             long long expected = brute_sum(arr, queries[i].first, queries[i].second);
             if (r.ans[i] != expected) cerr << "Stress test failed (seed=" << seed << ")\n";
@@ -112,8 +105,7 @@ int run_tests() {
             queries[i] = {l, r};
         }
 
-        Range1 r(q);
-        moQuery(n, arr, queries, r);
+        auto r = moQuery<Range1>(n, arr, queries);
         for (int i = 0; i < q; i++) {
             long long expected = brute_sum(arr, queries[i].first, queries[i].second);
             if (r.ans[i] != expected) cerr << "Stress test failed (seed=" << seed << ")\n";

@@ -5,8 +5,9 @@
 using namespace std;
 
 template<typename Range>
-void moQuery(int n, vector<long long>& arr, vector<pair<int, int>>& queries, Range& range) { // Never change this
+Range moQuery(int n, vector<long long>& arr, vector<pair<int, int>>& queries) { // Never change this
     int q = (int)queries.size();
+    Range range(q);
     const int block = max(1, (int)sqrt(n));
 
     // Tag queries with original index, then sort by Mo's order
@@ -33,6 +34,7 @@ void moQuery(int n, vector<long long>& arr, vector<pair<int, int>>& queries, Ran
         while (lo < l) range.rem(arr[lo++]);
         range.save(origIdx);
     }
+    return range;
 }
 
 // Example: sum of elements in each query range
