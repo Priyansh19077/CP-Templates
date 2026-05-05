@@ -4,6 +4,20 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+struct MoCmp {
+    int block;
+    MoCmp(int block) {
+        this->block = block;
+    }
+    bool operator()(const pair<pair<int, int>, int>& a, const pair<pair<int, int>, int>& b) const {
+        int ba = a.first.first / block;
+        int bb = b.first.first / block;
+        if (ba != bb) return ba < bb;
+        return (ba & 1) ? a.first.second > b.first.second
+                        : a.first.second < b.first.second;
+    }
+};
+
 template<typename Range>
 Range moQuery(int n, vector<long long>& arr, vector<pair<int, int>>& queries) { // Never change this
     int q = (int)queries.size();
@@ -16,14 +30,7 @@ Range moQuery(int n, vector<long long>& arr, vector<pair<int, int>>& queries) { 
 
     // Sort: primary key = block of l; secondary key = r, alternating direction
     // per block (odd blocks descending) to reduce total pointer movement
-    auto moCmp = [&](const auto& a, const auto& b) {
-        int ba = a.first.first / block;
-        int bb = b.first.first / block;
-        if (ba != bb) return ba < bb;
-        return (ba & 1) ? a.first.second > b.first.second
-                        : a.first.second < b.first.second;
-    };
-    sort(indexed.begin(), indexed.end(), moCmp);
+    sort(indexed.begin(), indexed.end(), MoCmp(block));
 
     int lo = 0, hi = -1;
     for (auto& [bounds, origIdx] : indexed) {
