@@ -1,15 +1,11 @@
 // O((N+Q)√N) — Mo's Algorithm for offline range queries
-// Generic template: define add/rem/save outside and pass them in
-// Works for any aggregate that supports incremental element addition/removal
+// Supports multiple query types with just a change in Range
+// Very few changes required each time
 #include <bits/stdc++.h>
 using namespace std;
 
-// Sorts queries in Mo's order and drives the [lo, hi] window.
-// add(pos): called when arr[pos] enters the window
-// rem(pos): called when arr[pos] leaves the window
-// save(origIdx): called after window is adjusted to query [l, r]
-template<typename AddFn, typename RemFn, typename SaveFn>
-void moQuery(int n, vector<pair<int, int>>& queries, AddFn add, RemFn rem, SaveFn save) {
+template<typename Range>
+void moQuery(int n, vector<long long>& arr, vector<pair<int, int>>& queries, Range& range) { // Never change this
     int q = (int)queries.size();
     const int block = max(1, (int)sqrt(n));
 
@@ -29,22 +25,33 @@ void moQuery(int n, vector<pair<int, int>>& queries, AddFn add, RemFn rem, SaveF
     sort(indexed.begin(), indexed.end(), moCmp);
 
     int lo = 0, hi = -1;
-    for (auto& [range, origIdx] : indexed) {
-        auto [l, r] = range;
-        while (hi < r) add(++hi);
-        while (lo > l) add(--lo);
-        while (hi > r) rem(hi--);
-        while (lo < l) rem(lo++);
-        save(origIdx);
+    for (auto& [bounds, origIdx] : indexed) {
+        auto [l, r] = bounds;
+        while (hi < r) range.add(arr[++hi]);
+        while (lo > l) range.add(arr[--lo]);
+        while (hi > r) range.rem(arr[hi--]);
+        while (lo < l) range.rem(arr[lo++]);
+        range.save(origIdx);
     }
 }
 
-// Example: count distinct elements in each query range
-// Usage:
-//   Coordinate-compress arr if values are large.
-//   Define freq, cur, ans outside, then pass add/rem/save to moQuery:
-//
-//   auto add  = [&](int pos) { if (++freq[arr[pos]] == 1) cur++; };
-//   auto rem  = [&](int pos) { if (--freq[arr[pos]] == 0) cur--; };
-//   auto save = [&](int idx) { ans[idx] = cur; };
-//   moQuery(n, queries, add, rem, save);
+// Example: sum of elements in each query range
+struct Range1 {
+    long long cur;         // store current window aggregate; may change
+    vector<long long> ans;
+
+    Range1(int q) {        // Identity state; may change
+        cur = 0;
+        ans.assign(q, 0);
+    }
+
+    void add(long long val) { // element enters window; may change
+        cur += val;
+    }
+    void rem(long long val) { // element leaves window; may change
+        cur -= val;
+    }
+    void save(int idx) {      // save answer for query idx; may change
+        ans[idx] = cur;
+    }
+};

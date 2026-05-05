@@ -4,124 +4,80 @@
 
 using namespace std;
 
-// Wrapper: runs moQuery to count distinct elements per query range
-vector<int> runDistinct(int n, vector<int> arr, vector<pair<int, int>>& queries) {
-    // Coordinate compress arr
-    map<int, int> compress;
-    int id = 0;
-    for (int& x : arr) {
-        if (!compress.count(x)) compress[x] = id++;
-        x = compress[x];
-    }
-
-    int q = (int)queries.size();
-    vector<int> freq(n, 0), ans(q);
-    int cur = 0;
-
-    auto add = [&](int pos) {
-        if (++freq[arr[pos]] == 1) cur++;
-    };
-    auto rem = [&](int pos) {
-        if (--freq[arr[pos]] == 0) cur--;
-    };
-    auto save = [&](int idx) {
-        ans[idx] = cur;
-    };
-
-    moQuery(n, queries, add, rem, save);
-    return ans;
-}
-
 int run_tests() {
-    // --- Small test: [1, 2, 3, 2, 1, 4, 3] ---
+    // --- Small test: [1, 2, 3, 4, 5], sum queries ---
     {
-        vector<int> arr = {1, 2, 3, 2, 1, 4, 3};
-        vector<pair<int, int>> queries = {{0, 2}, {1, 4}, {0, 6}, {3, 5}};
-        vector<int> ans = runDistinct(7, arr, queries);
-        ASSERT_EQ(ans[0], brute_distinct(arr, 0, 2));
-        ASSERT_EQ(ans[1], brute_distinct(arr, 1, 4));
-        ASSERT_EQ(ans[2], brute_distinct(arr, 0, 6));
-        ASSERT_EQ(ans[3], brute_distinct(arr, 3, 5));
+        vector<long long> arr = {1, 2, 3, 4, 5};
+        vector<pair<int, int>> queries = {{0, 2}, {1, 3}, {0, 4}, {2, 4}};
+        Range1 r((int)queries.size());
+        moQuery(5, arr, queries, r);
+        ASSERT_EQ(r.ans[0], brute_sum(arr, 0, 2));
+        ASSERT_EQ(r.ans[1], brute_sum(arr, 1, 3));
+        ASSERT_EQ(r.ans[2], brute_sum(arr, 0, 4));
+        ASSERT_EQ(r.ans[3], brute_sum(arr, 2, 4));
     }
 
     // --- Single element queries ---
     {
-        vector<int> arr = {5, 5, 5, 5};
-        vector<pair<int, int>> queries = {{0, 0}, {1, 1}, {2, 3}};
-        vector<int> ans = runDistinct(4, arr, queries);
-        ASSERT_EQ(ans[0], brute_distinct(arr, 0, 0));
-        ASSERT_EQ(ans[1], brute_distinct(arr, 1, 1));
-        ASSERT_EQ(ans[2], brute_distinct(arr, 2, 3));
+        vector<long long> arr = {10, 20, 30, 40};
+        vector<pair<int, int>> queries = {{0, 0}, {1, 1}, {3, 3}};
+        Range1 r((int)queries.size());
+        moQuery(4, arr, queries, r);
+        ASSERT_EQ(r.ans[0], brute_sum(arr, 0, 0));
+        ASSERT_EQ(r.ans[1], brute_sum(arr, 1, 1));
+        ASSERT_EQ(r.ans[2], brute_sum(arr, 3, 3));
     }
 
-    // --- All distinct elements ---
+    // --- All zeros ---
     {
-        vector<int> arr = {10, 20, 30, 40, 50};
-        vector<pair<int, int>> queries = {{0, 4}, {0, 2}, {2, 4}, {1, 3}};
-        vector<int> ans = runDistinct(5, arr, queries);
-        ASSERT_EQ(ans[0], brute_distinct(arr, 0, 4));
-        ASSERT_EQ(ans[1], brute_distinct(arr, 0, 2));
-        ASSERT_EQ(ans[2], brute_distinct(arr, 2, 4));
-        ASSERT_EQ(ans[3], brute_distinct(arr, 1, 3));
+        vector<long long> arr(6, 0);
+        vector<pair<int, int>> queries = {{0, 5}, {1, 4}, {2, 3}};
+        Range1 r((int)queries.size());
+        moQuery(6, arr, queries, r);
+        ASSERT_EQ(r.ans[0], brute_sum(arr, 0, 5));
+        ASSERT_EQ(r.ans[1], brute_sum(arr, 1, 4));
+        ASSERT_EQ(r.ans[2], brute_sum(arr, 2, 3));
     }
 
-    // --- All same elements ---
+    // --- All same values ---
     {
-        vector<int> arr = {7, 7, 7, 7, 7, 7};
-        vector<pair<int, int>> queries = {{0, 5}, {0, 0}, {2, 4}, {1, 5}};
-        vector<int> ans = runDistinct(6, arr, queries);
-        ASSERT_EQ(ans[0], brute_distinct(arr, 0, 5));
-        ASSERT_EQ(ans[1], brute_distinct(arr, 0, 0));
-        ASSERT_EQ(ans[2], brute_distinct(arr, 2, 4));
-        ASSERT_EQ(ans[3], brute_distinct(arr, 1, 5));
-    }
-
-    // --- Two elements alternating ---
-    {
-        vector<int> arr = {1, 2, 1, 2, 1, 2};
-        vector<pair<int, int>> queries = {{0, 5}, {0, 0}, {0, 1}, {1, 4}};
-        vector<int> ans = runDistinct(6, arr, queries);
-        ASSERT_EQ(ans[0], brute_distinct(arr, 0, 5));
-        ASSERT_EQ(ans[1], brute_distinct(arr, 0, 0));
-        ASSERT_EQ(ans[2], brute_distinct(arr, 0, 1));
-        ASSERT_EQ(ans[3], brute_distinct(arr, 1, 4));
-    }
-
-    // --- Large values (coordinate compression must handle these) ---
-    {
-        vector<int> arr = {1000000, 999999, 1000000, 999998, 999999};
-        vector<pair<int, int>> queries = {{0, 4}, {0, 2}, {1, 3}};
-        vector<int> ans = runDistinct(5, arr, queries);
-        ASSERT_EQ(ans[0], brute_distinct(arr, 0, 4));
-        ASSERT_EQ(ans[1], brute_distinct(arr, 0, 2));
-        ASSERT_EQ(ans[2], brute_distinct(arr, 1, 3));
+        vector<long long> arr(8, 7);
+        vector<pair<int, int>> queries = {{0, 7}, {0, 3}, {4, 7}, {2, 5}};
+        Range1 r((int)queries.size());
+        moQuery(8, arr, queries, r);
+        ASSERT_EQ(r.ans[0], brute_sum(arr, 0, 7));
+        ASSERT_EQ(r.ans[1], brute_sum(arr, 0, 3));
+        ASSERT_EQ(r.ans[2], brute_sum(arr, 4, 7));
+        ASSERT_EQ(r.ans[3], brute_sum(arr, 2, 5));
     }
 
     // --- Single query spanning full array ---
     {
-        vector<int> arr = {3, 1, 4, 1, 5, 9, 2, 6};
+        vector<long long> arr = {3, 1, 4, 1, 5, 9, 2, 6};
         vector<pair<int, int>> queries = {{0, 7}};
-        vector<int> ans = runDistinct(8, arr, queries);
-        ASSERT_EQ(ans[0], brute_distinct(arr, 0, 7));
+        Range1 r((int)queries.size());
+        moQuery(8, arr, queries, r);
+        ASSERT_EQ(r.ans[0], brute_sum(arr, 0, 7));
     }
 
     // --- Many queries on same range (order preserved) ---
     {
-        vector<int> arr = {1, 2, 3};
+        vector<long long> arr = {1, 2, 3};
         vector<pair<int, int>> queries = {{0, 2}, {0, 2}, {0, 2}};
-        vector<int> ans = runDistinct(3, arr, queries);
-        ASSERT_EQ(ans[0], brute_distinct(arr, 0, 2));
-        ASSERT_EQ(ans[1], brute_distinct(arr, 0, 2));
-        ASSERT_EQ(ans[2], brute_distinct(arr, 0, 2));
+        Range1 r((int)queries.size());
+        moQuery(3, arr, queries, r);
+        ASSERT_EQ(r.ans[0], brute_sum(arr, 0, 2));
+        ASSERT_EQ(r.ans[1], brute_sum(arr, 0, 2));
+        ASSERT_EQ(r.ans[2], brute_sum(arr, 0, 2));
     }
 
-    // --- Stress test: n=500, q=200, values in [0,49] ---
+    // --- Stress test: n=500, q=200 ---
     {
         auto seed = chrono::steady_clock::now().time_since_epoch().count();
         mt19937 rng(seed);
         const int n = 500;
-        vector<int> arr(n);
-        for (int i = 0; i < n; i++) arr[i] = rng() % 50;
+        vector<long long> arr(n);
+        for (int i = 0; i < n; i++) arr[i] = rng() % 1000000;
 
         const int q = 200;
         vector<pair<int, int>> queries(q);
@@ -131,21 +87,22 @@ int run_tests() {
             queries[i] = {l, r};
         }
 
-        vector<int> ans = runDistinct(n, arr, queries);
+        Range1 r(q);
+        moQuery(n, arr, queries, r);
         for (int i = 0; i < q; i++) {
-            int expected = brute_distinct(arr, queries[i].first, queries[i].second);
-            if (ans[i] != expected) cerr << "Stress test failed (seed=" << seed << ")\n";
-            ASSERT_EQ(ans[i], expected);
+            long long expected = brute_sum(arr, queries[i].first, queries[i].second);
+            if (r.ans[i] != expected) cerr << "Stress test failed (seed=" << seed << ")\n";
+            ASSERT_EQ(r.ans[i], expected);
         }
     }
 
-    // --- Stress test: n=300, q=300, large value range ---
+    // --- Stress test: n=300, q=300, negative values ---
     {
         auto seed = chrono::steady_clock::now().time_since_epoch().count();
         mt19937 rng(seed);
         const int n = 300;
-        vector<int> arr(n);
-        for (int i = 0; i < n; i++) arr[i] = rng() % 1000000;
+        vector<long long> arr(n);
+        for (int i = 0; i < n; i++) arr[i] = (long long)(rng() % 2000000) - 1000000;
 
         const int q = 300;
         vector<pair<int, int>> queries(q);
@@ -155,11 +112,12 @@ int run_tests() {
             queries[i] = {l, r};
         }
 
-        vector<int> ans = runDistinct(n, arr, queries);
+        Range1 r(q);
+        moQuery(n, arr, queries, r);
         for (int i = 0; i < q; i++) {
-            int expected = brute_distinct(arr, queries[i].first, queries[i].second);
-            if (ans[i] != expected) cerr << "Stress test failed (seed=" << seed << ")\n";
-            ASSERT_EQ(ans[i], expected);
+            long long expected = brute_sum(arr, queries[i].first, queries[i].second);
+            if (r.ans[i] != expected) cerr << "Stress test failed (seed=" << seed << ")\n";
+            ASSERT_EQ(r.ans[i], expected);
         }
     }
 
