@@ -7,7 +7,7 @@ using namespace std;
 template<typename Range>
 Range moQuery(int n, vector<long long>& arr, vector<pair<int, int>>& queries) { // Never change this
     int q = (int)queries.size();
-    Range range(q);
+    Range range(arr, q);
     const int block = max(1, (int)sqrt(n));
 
     // Tag queries with original index, then sort by Mo's order
@@ -42,7 +42,7 @@ struct Range1 {
     long long cur;         // store current window aggregate; may change
     vector<long long> ans;
 
-    Range1(int q) {        // Identity state; may change
+    Range1(vector<long long>&, int q) { // Identity state; may change
         cur = 0;
         ans.assign(q, 0);
     }
