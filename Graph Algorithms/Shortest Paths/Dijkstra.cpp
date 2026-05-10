@@ -1,25 +1,29 @@
-// O(VlogV + ElogV)
-// Single Source Shortest Path
+// O(E log V) — Single-source shortest path (non-negative weights)
+// dist[i] = shortest distance from src; parent[i] = previous node on shortest path
+// adj[u] = list of {v, weight}
+#include <bits/stdc++.h>
+using namespace std;
 
-void Dijkstra(int s, int n, vector<ll> &dist, vector<int> &parent, vector<pair<int, ll>> *adj) {
-	dist.assign(n, INF);
-	parent.assign(n, -1);
-	dist[s] = 0;
-	priority_queue <pair<ll, ll>, vector<pair<ll, ll>>, greater<pair<ll, ll>>> q;
-	q.push({0, s});
-	while (!q.empty()) {
-		pair<ll, int> here = q.top();
-		q.pop();
-		int v = here.ss;
-		ll d_v = here.ff;
-		if (d_v != dist[v])
-			continue;
-		for (auto edge : adj[v]) {
-			if (dist[v] + edge.ss < dist[edge.ff]) {
-				dist[edge.ff] = dist[v] + edge.ss;
-				parent[edge.ff] = v;
-				q.push({dist[edge.ff], edge.ff});
-			}
-		}
-	}
+const long long INF = 2e18;
+
+void dijkstra(int src, int n, vector<long long>& dist, vector<int>& parent, vector<pair<int, long long>>* adj) {
+    dist.assign(n, INF);
+    parent.assign(n, -1);
+    dist[src] = 0;
+    priority_queue<pair<long long, int>, vector<pair<long long, int>>, greater<pair<long long, int>>> pq;
+    pq.push({0, src});
+    while (!pq.empty()) {
+        auto [d, v] = pq.top();
+        pq.pop();
+        if (d != dist[v]) {
+            continue;
+        }
+        for (auto [u, w] : adj[v]) {
+            if (dist[v] + w < dist[u]) {
+                dist[u] = dist[v] + w;
+                parent[u] = v;
+                pq.push({dist[u], u});
+            }
+        }
+    }
 }
