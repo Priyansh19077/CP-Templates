@@ -1,87 +1,90 @@
-struct Edge{
+// O(V * E²) — Maximum flow via Edmonds-Karp (BFS augmenting paths)
+// Usage: Flow f(adj, n, src, sink); long long result = f.maxFlow();
+// adj[u] = list of {v, capacity} (directed edges)
+#include <bits/stdc++.h>
+using namespace std;
+
+const long long INF = 2e18;
+
+struct Edge {
     int index;
     int src, dest;
-    ll val;
+    long long val;
     int residualIndex;
 };
-struct Flow{
+
+struct Flow {
     int n;
     int src, dest;
-    int iteration = 0;
+    int iteration;
     vector<Edge> edgesT;
     vector<vector<int>> edges;
     vector<int> visited;
     bool solved;
-    ll flow;
-    Flow(vector<pair<int, ll>>* edges1, int n1, int s, int d){
-        n = n1, src = s, dest = d;
+    long long flow;
+
+    Flow(vector<pair<int, long long>>* adj, int n, int src, int dest) {
+        this->n = n;
+        this->src = src;
+        this->dest = dest;
         solved = false;
-        flow = 0, iteration = 1;
-        visited.resize(n);
-        fill(all(visited), 0);
+        flow = 0;
+        iteration = 1;
+        visited.resize(n, 0);
         edges.resize(n);
-        for(int i = 0; i < n; i++){
-            for(auto j : edges1[i]){
-                Edge e1 = {sz(edgesT), i, j.ff, j.ss, sz(edgesT) + 1};
-                Edge e2 = {sz(edgesT) + 1, j.ff, i, 0, sz(edgesT)};
-                edgesT.pb(e1);
-                edgesT.pb(e2);
-                edges[i].pb(e1.index);
-                edges[j.ff].pb(e2.index);
+        for (int i = 0; i < n; i++) {
+            for (auto [v, cap] : adj[i]) {
+                int idx = (int)edgesT.size();
+                Edge e1 = {idx, i, v, cap, idx + 1};
+                Edge e2 = {idx + 1, v, i, 0, idx};
+                edgesT.push_back(e1);
+                edgesT.push_back(e2);
+                edges[i].push_back(e1.index);
+                edges[v].push_back(e2.index);
             }
         }
     }
-    ll bfs(int root){
+
+    long long bfs(int root) {
         queue<int> qu;
         qu.push(root);
         visited[root] = iteration;
         vector<int> prev(n, -1);
-        while(!qu.empty()){
+        while (!qu.empty()) {
             int node = qu.front();
             qu.pop();
-            if(node == dest)
-                break;
-            for(auto i : edges[node]){
-                Edge e1 = edgesT[i];
-                if(visited[e1.dest] != iteration && e1.val > 0){
+            if (node == dest) break;
+            for (int i : edges[node]) {
+                Edge& e1 = edgesT[i];
+                if (visited[e1.dest] != iteration && e1.val > 0) {
                     visited[e1.dest] = iteration;
                     prev[e1.dest] = e1.index;
-                    qu.push(e1.dest); 
+                    qu.push(e1.dest);
                 }
             }
         }
-        int currNode = dest;
-        if(prev[currNode] == -1)
-            return 0;
-        ll finalValue = INF;
-        while(prev[currNode] != -1){
-            Edge e1 = edgesT[prev[currNode]];
-            finalValue = min(finalValue, e1.val);
-            currNode = e1.src;
+        if (prev[dest] == -1) return 0;
+        long long finalValue = INF;
+        for (int cur = dest; prev[cur] != -1; cur = edgesT[prev[cur]].src) {
+            finalValue = min(finalValue, edgesT[prev[cur]].val);
         }
-        currNode = dest;
-        while(prev[currNode] != -1){
-            Edge e1 = edgesT[prev[currNode]];
-            e1.val -= finalValue;
-            edgesT[e1.index] = e1;
+        for (int cur = dest; prev[cur] != -1; cur = edgesT[prev[cur]].src) {
+            Edge& e1 = edgesT[prev[cur]];
             edgesT[e1.residualIndex].val += finalValue;
-            currNode = e1.src;
+            e1.val -= finalValue;
         }
         return finalValue;
     }
-    void EdmondsKarp(){
-        while(true){
-            ll f = bfs(src);
-            if(f == 0)
-                return;
-            flow += f;
-            iteration++;
-        }
-    }
-    ll maxFlow(){
-        if(!solved){
+
+    long long maxFlow() {
+        if (!solved) {
             solved = true;
-            EdmondsKarp();
+            while (true) {
+                long long f = bfs(src);
+                if (f == 0) break;
+                flow += f;
+                iteration++;
+            }
         }
         return flow;
     }
