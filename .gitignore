@@ -3,5 +3,5 @@
 a.out
 *.exe
 *.o
-tests/test_*
-!tests/test_*.cpp
+tests/**/test_*
+!tests/**/*.cpp

@@ -14,7 +14,7 @@ all: $(BINS)
 run: all
 	@failed=0; \
 	for t in $(BINS); do \
-	  ./$$t || failed=$$((failed+1)); \
+	  $$t || failed=$$((failed+1)); \
 	done; \
 	if [ $$failed -eq 0 ]; then echo "All tests passed."; else echo "$$failed test(s) failed."; fi; \
 	exit $$failed
